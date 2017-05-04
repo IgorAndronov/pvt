@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache>
+
+    <defaultCache maxElementsInMemory="10000"
+                  eternal="false"
+                  timeToIdleSeconds="300"
+                  timeToLiveSeconds="600"
+                  diskSpoolBufferSizeMB="30"
+                  maxElementsOnDisk="10000"
+                  diskExpiryThreadIntervalSeconds="120"
+                  memoryStoreEvictionPolicy="LRU" statistics="false">
+    </defaultCache>
+
+    <cache
+            name="org.hibernate.cache.spi.UpdateTimestampsCache"
+            maxElementsInMemory="10000"
+            eternal="false">
+    </cache>
+
+    <cache
+            name="org.hibernate.cache.internal.StandardQueryCache"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToLiveSeconds="300">
+    </cache>
+
+    <!--
+    If you are concerned about cpu utilisation and locking in the DiskStore, you can set the
+    diskExpiryThreadIntervalSeconds to a high number - say 1 day. Or you can effectively turn it off by
+    setting the diskExpiryThreadIntervalSeconds to a very large value
+    -->
+    <cache
+            name="kiev"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="30"
+            timeToLiveSeconds="60"/>
+</ehcache>

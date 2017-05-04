@@ -1,0 +1,260 @@
+
+/*Color of  navbar-inverse*/
+.navbar-inverse {
+    background-color: #46b8da;
+}
+
+/*Color of .active background (button Home)*/
+.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:focus, .navbar-inverse .navbar-nav > .active > a:hover {
+   background-color: #44afda;
+    color: #F9FFF2;
+}
+.navbar-inverse .navbar-nav > .active > a:focus, .navbar-inverse .navbar-nav > .active > a:hover {
+    color: #717177;
+}
+
+/*Font color of menu in navigation bar*/
+.navbar-inverse .navbar-nav > li > a {
+    color: #F9FFF2;
+}
+.navbar-inverse .navbar-nav > li > a:focus, .navbar-inverse .navbar-nav > li > a:hover {
+    color: #717177;
+}
+/*Name of the site in navigator bar*/
+.navbar-inverse .navbar-brand {
+    color: #FCF10E;
+    font-family: "Glyphicons Halflings";
+}
+
+.dropdown-menu{
+    background-color: #FFF;
+}
+.dropdown-menu > li > a {
+    color: #717177;
+}
+.dropdown-menu > li > a:hover {
+    background-color: #46b8da;
+}
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:focus, .navbar-inverse .navbar-nav > .open > a:hover {
+    background-color: #46b8da;
+}
+.navbar{
+    margin-bottom: 5px;
+}
+
+
+.panel-footer{
+    margin: 0%;
+     background-color: #232324;
+    /*color: #D4D5CE;*/
+    color: #337AB7;
+}
+.panel-footer a:hover, .panel-footer a:focus{
+    color: #D4D5CE;
+    cursor:pointer;
+    text-decoration: none;
+   }
+
+
+
+.button {
+    display: inline-block;
+    vertical-align: baseline;
+    margin: 5px 2px;
+    outline: medium none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    font: 14px/100% Arial,Helvetica,sans-serif;
+    padding: 0.5em 1em 0.55em;
+    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+    border-radius: 0.5em;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+/*progress bar*/
+.progress{
+    height: 30px;
+    background-color: inherit;
+    box-shadow: none;
+}
+.progress-bar{
+    font-size: 14px;
+    border-radius: 0.5em;
+    line-height: 30px;
+    border-top: solid;
+    border-top-color:#B0AEAE;
+    border-width: thin;
+
+}
+
+.progress_border{
+    padding-top: 10px;
+    border-top: solid;
+    border-top-color: #B0AEAE;
+    border-width: thin;
+    margin-top: 10px;
+
+}
+
+.gray {
+    color: #E9E9E9;
+    /*border: 1px solid #555;*/
+    background: transparent -moz-linear-gradient(center top , #888, #A5C0C8) repeat scroll 0% 0%;
+}
+
+.red{
+    border: 1px solid #980C10;
+    background: transparent -moz-linear-gradient(left , #ED1C24, #AA1317) repeat scroll 0% 0%;
+}
+
+.orange{
+    border: 1px solid #DA7C0C;
+    background: transparent -moz-linear-gradient(left , #d50b27, #e4e405) repeat scroll 0% 0%;
+}
+
+.yellow{
+    border: 1px solid #e4e405;
+    background: transparent -moz-linear-gradient(left , #fafa05, #7DB72F) repeat scroll 0% 0%;
+}
+
+.blue{
+    border: 1px solid #0076A3;
+    background: transparent -moz-linear-gradient(left , #00ADEE, #0078A5) repeat scroll 0% 0%;
+}
+
+.green{
+    border: 1px solid #538312;
+    background: transparent -moz-linear-gradient(left , #7DB72F, #4E7D0E) repeat scroll 0% 0%;
+}
+
+a.button1 {
+
+    display: inline-block;
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 -1px rgba(0,0,0,.5);
+    user-select: none;
+    padding: .7em 1.5em;
+    border: 1px solid rgb(80,32,0);
+    border-radius: 5px;
+    outline: none;
+    background: rgb(147,80,36) linear-gradient(rgb(106,58,26), rgb(147,80,36) 80%);
+    box-shadow:
+    0 6px rgb(86,38,6),
+    0 3px 15px rgba(0,0,0,.4),
+    inset 0 1px rgba(255,255,255,.3),
+    inset 0 0 3px rgba(255,255,255,.5);
+    transition: .2s;
+    margin-bottom: 20px;
+
+}
+.button1:hover {
+    background: rgb(167,91,41) linear-gradient(rgb(126,69,31), rgb(167,91,41) 80%);
+}
+.button1:active {
+    background: rgb(120,63,25) linear-gradient(rgb(120,63,25) 20%, rgb(167,91,41));
+    box-shadow:
+    0 2px rgb(86,38,6),
+    0 1px 6px rgba(0,0,0,.4),
+    inset 0 1px rgba(255,255,255,.3),
+    inset 0 0 3px rgba(255,255,255,.5);
+    -webkit-transform: translate(0, 4px);
+    transform: translate(0, 4px);
+}
+
+a.button9 {
+    position: relative;
+    display: inline-block;
+    color: #777674;
+    font-weight: bold;
+    text-decoration: none;
+    text-shadow: rgba(255,255,255,.5) 1px 1px, rgba(100,100,100,.3) 3px 7px 3px;
+    user-select: none;
+    padding: 1em 2em;
+    outline: none;
+    border-radius: 3px / 100%;
+    background-image:
+    linear-gradient(45deg, rgba(255,255,255,.0) 30%, rgba(255,255,255,.8), rgba(255,255,255,.0) 70%),
+    linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0) 20%, rgba(255,255,255,0) 90%, rgba(255,255,255,.3)),
+    linear-gradient(to right, rgba(125,125,125,1), rgba(255,255,255,.9) 45%, rgba(125,125,125,.5)),
+    linear-gradient(to right, rgba(125,125,125,1), rgba(255,255,255,.9) 45%, rgba(125,125,125,.5)),
+    linear-gradient(to right, rgba(223,190,170,1), rgba(255,255,255,.9) 45%, rgba(223,190,170,.5)),
+    linear-gradient(to right, rgba(223,190,170,1), rgba(255,255,255,.9) 45%, rgba(223,190,170,.5));
+    background-repeat: no-repeat;
+    background-size: 200% 100%, auto, 100% 2px, 100% 2px, 100% 1px, 100% 1px;
+    background-position: 200% 0, 0 0, 0 0, 0 100%, 0 4px, 0 calc(100% - 4px);
+    box-shadow: rgba(0,0,0,.5) 3px 10px 10px -10px;
+}
+a.button9:hover {
+    transition: .5s linear;
+    background-position: -200% 0, 0 0, 0 0, 0 100%, 0 4px, 0 calc(100% - 4px);
+}
+a.button9:active {
+    top: 1px;
+}
+
+
+.class1{
+    height: 50px;
+    width: 190px;
+    transform: skewX(30deg);
+    background-color: #737373;
+
+}
+.class2{
+    height: 50px;
+    width: 190px;
+    transform: skewX(-30deg);
+    background-color: #737373;
+}
+
+a.button12 {
+    position: relative;
+    display: inline-block;
+    font-size: 100%;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: #053852 -1px 1px, #053852 1px 1px, #053852 1px -1px, #053852 -1px -1px;
+    text-decoration: none;
+    user-select: none;
+    padding: .3em .7em;
+    outline: none;
+    border-radius: 7px;
+    background: #053852 repeating-linear-gradient(135deg, #053852, #053852 10px, #1679ad 10px, #1679ad 20px, #053852 20px);
+    box-shadow:
+    inset -2px -2px rgba(0,0,0,.3),
+    inset 2px 2px rgba(255,255,255,.3);
+    transition: background-position 999999s, color 999999s, text-shadow 999999s;
+}
+a.button12:hover, a.button12:focus {
+    text-shadow: #0175b1 -1px 1px, #0175b1 1px 1px, #0175b1 1px -1px, #0175b1 -1px -1px;
+    background: #0175b1 repeating-linear-gradient(135deg, #0175b1, #0175b1 10px, #8fd2f5 10px, #8fd2f5 20px, #0175b1 20px) no-repeat;
+    background-size: 1000% 100%;
+}
+a.button12:hover {
+    background-position: 0 0;
+}
+a.button12:focus {
+    color: rgba(255,255,255,0);
+    text-shadow: rgba(1,117,177,0) -1px 1px, rgba(1,117,177,0) 1px 1px, rgba(1,117,177,0) 1px -1px, rgba(1,117,177,0) -1px -1px;
+    background-position: 900% 0;
+    transition: background-position linear 600s, color .5s, text-shadow .5s;
+}
+a.button12:after {
+    content: "загрузка\2026";
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: .3em .7em;
+    color: rgba(0,0,0,0);
+    text-shadow: none;
+    transition: 999999s;
+}
+a.button12:focus:after {
+    color: #fff;
+    text-shadow: #0175b1 -1px 1px, #0175b1 1px 1px, #0175b1 1px -1px, #0175b1 -1px -1px;
+    transition: .5s;
+}

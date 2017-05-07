@@ -115,6 +115,12 @@
           <version>2.1</version>
       </dependency>
 
+      <dependency>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+          <version>1.2.17</version>
+      </dependency>
+
       <!-- Hibernate uses slf4j for logging, for our purposes here use the simple backend -->
       <dependency>
           <groupId>org.slf4j</groupId>
@@ -140,7 +146,7 @@
       <dependency>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.3</version>
+          <version>${maven.compile.version}</version>
           <exclusions>
               <exclusion>
                   <artifactId>slf4j-jdk14</artifactId>
@@ -152,6 +158,9 @@
               </exclusion>
           </exclusions>
       </dependency>
+
+
+
 
   </dependencies>
   <build>
@@ -173,7 +182,20 @@
               <target>1.8</target>
           </configuration>
          </plugin>
+
+          <!-- For Maven Tomcat Plugin -->
+          <plugin>
+              <groupId>org.apache.tomcat.maven</groupId>
+              <artifactId>tomcat7-maven-plugin</artifactId>
+              <version>2.2</version>
+              <configuration>
+                  <path>/pvt</path>
+              </configuration>
+          </plugin>
+
       </plugins>
 
   </build>
 </project>
+
+

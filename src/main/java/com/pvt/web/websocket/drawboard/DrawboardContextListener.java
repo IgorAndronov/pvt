@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany.credit.web.websocket.drawboard;
+package com.pvt.web.websocket.drawboard;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;

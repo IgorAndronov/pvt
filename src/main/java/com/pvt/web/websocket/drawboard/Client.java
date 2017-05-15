@@ -14,10 +14,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany.credit.web.websocket.drawboard;
+package com.pvt.web.websocket.drawboard;
 
-import java.io.IOException;
-import java.util.LinkedList;
+
+
+import com.pvt.web.websocket.drawboard.wsmessages.AbstractWebsocketMessage;
+import com.pvt.web.websocket.drawboard.wsmessages.BinaryWebsocketMessage;
+import com.pvt.web.websocket.drawboard.wsmessages.CloseWebsocketMessage;
+import com.pvt.web.websocket.drawboard.wsmessages.StringWebsocketMessage;
 
 import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCodes;
@@ -25,11 +29,8 @@ import javax.websocket.RemoteEndpoint.Async;
 import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
 import javax.websocket.Session;
-
-import com.mycompany.credit.web.websocket.drawboard.wsmessages.AbstractWebsocketMessage;
-import com.mycompany.credit.web.websocket.drawboard.wsmessages.BinaryWebsocketMessage;
-import com.mycompany.credit.web.websocket.drawboard.wsmessages.CloseWebsocketMessage;
-import com.mycompany.credit.web.websocket.drawboard.wsmessages.StringWebsocketMessage;
+import java.io.IOException;
+import java.util.LinkedList;
 
 /**
  * Represents a client with methods to send messages asynchronously.

@@ -2,6 +2,7 @@ package com.pvt.web.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -13,10 +14,17 @@ import java.util.Map;
 @Controller
 public class ChatController {
 
-    @RequestMapping(value = "/chat.html", method = RequestMethod.GET)
-    public String getChatPage(){
+    private static final String CHAT_PAGE = "public/chat";
 
-        return "public/chat";
+    @RequestMapping(value = "/chat.html", method = RequestMethod.GET)
+    public ModelAndView getChatPage(){
+
+        ModelAndView model = new ModelAndView(CHAT_PAGE);
+
+        model.addObject("nickname", "Fresher");
+
+        return model;
+
 
     }
 

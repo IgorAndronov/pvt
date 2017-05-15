@@ -14,11 +14,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany.credit.web.websocket.drawboard;
+package com.pvt.web.websocket.drawboard;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+
+
+import com.pvt.web.websocket.drawboard.wsmessages.BinaryWebsocketMessage;
+import com.pvt.web.websocket.drawboard.wsmessages.StringWebsocketMessage;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,11 +32,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.imageio.ImageIO;
-
-import com.mycompany.credit.web.websocket.drawboard.wsmessages.BinaryWebsocketMessage;
-import com.mycompany.credit.web.websocket.drawboard.wsmessages.StringWebsocketMessage;
 
 /**
  * A Room represents a drawboard where a number of

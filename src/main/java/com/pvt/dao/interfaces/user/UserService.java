@@ -8,4 +8,5 @@ import com.pvt.web.LoginController;
  */
 public interface UserService {
     public boolean isUserCanLogin(String login, String password, String userType, LoginController loginController);
+    public String getIntroMessage(String clientType);
 }

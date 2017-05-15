@@ -14,38 +14,52 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany.credit.web.websocket.chat;
+package com.pvt.web.websocket.chat;
 
-import com.mycompany.credit.web.LoginController;
-import com.mycompany.credit.web.utils.HTMLFilter;
+import com.pvt.domain.logic.core.CentralAI;
+import com.pvt.domain.logic.core.DialogState;
+import com.pvt.web.utils.HTMLFilter;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.inject.Scope;
+import javax.websocket.*;
+import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
-
-
 
 @ServerEndpoint(value = "/websocket/chat")
-public class ChatAnnotation {
+@Component
+public class ChatAnnotation implements ApplicationContextAware {
+
+    private static ApplicationContext appContext;
+    static CentralAI  centralAI;
 
     private static final Logger logger = Logger.getLogger(ChatAnnotation.class);
 
     private static final String GUEST_PREFIX = "Guest";
     private static final AtomicInteger connectionIds = new AtomicInteger(0);
+
+    public static Set<ChatAnnotation> getConnections() {
+        return connections;
+    }
+
     private static final Set<ChatAnnotation> connections =
             new CopyOnWriteArraySet<>();
+
+    public String getNickname() {
+        return nickname;
+    }
 
     private  String nickname;
     private Session session;
@@ -79,21 +93,51 @@ public class ChatAnnotation {
 
     @OnMessage
     public void incoming(String message) {
-        // Never trust the client
+        System.out.println("Thread="+Thread.currentThread());
+        System.out.println("message=" + message);
+        try {
 
-       if(message.contains("\n")) {
+            if (message.contains("\n")) {
 
-           String messageToSend = String.format("%s: %s",
-                    nickname, HTMLFilter.filter(message.toString()));
-            broadcast(messageToSend);
+                String messageToSend = String.format("%s: %s",
+                        nickname, HTMLFilter.filter(message.toString()));
+                //  broadcast(messageToSend);
 
-        }else {
-           if(message.startsWith("##")){
-               nickname=message.substring(2);
-               broadcast(nickname + " has joined");
-           }else{
-              broadcast("typing");
-           }
+            } else {
+                if (message.startsWith("##")) {
+                    nickname = message.substring(2);
+                    //    broadcast(nickname + " has joined");
+                } else if (message.equals("#continue")) {
+                    if(centralAI.dialogStates.get(nickname)==null){
+                        centralAI.dialogStates.put(nickname, new DialogState(true, true)) ;
+                    }else{
+                        centralAI.dialogStates.get(nickname).setCanContinue(true);
+                        System.out.println("continue");
+                    }
+
+                } else if (message.equals("#ready")) {
+                    Thread.sleep(2000);
+                    boolean newThread = true;
+                    for(Thread thread:Thread.getAllStackTraces().keySet()){
+                        if(thread.getName().startsWith(nickname)){
+                            centralAI.dialogStates.get(nickname).setCanContinue(true);
+                            centralAI.dialogStates.get(nickname).setAfterResume(true);
+                            newThread = false;
+                        }
+                    }
+                    if(newThread){
+                        new Thread(nickname+System.currentTimeMillis()) {
+                            public void run() {
+                                centralAI.doSomeWork();
+                            }
+                        }.start();
+                    }
+
+
+                }
+            }
+        }catch (Exception e){
+
         }
 
     }
@@ -107,11 +151,13 @@ public class ChatAnnotation {
     }
 
 
-    private static void broadcast(String msg) {
+    public static void broadcast(String msg) {
         for (ChatAnnotation client : connections) {
             try {
-                synchronized (client) {
-                    client.session.getBasicRemote().sendText(msg);
+                if(client.nickname.equals("Fresher")) {
+                    synchronized (client) {
+                        client.session.getBasicRemote().sendText(msg);
+                    }
                 }
             } catch (IOException e) {
                 logger.debug("Chat Error: Failed to send message to client", e);
@@ -126,5 +172,12 @@ public class ChatAnnotation {
                 broadcast(message);
             }
         }
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        System.out.println("applicationContext ="+applicationContext);
+        appContext=applicationContext;
+        centralAI = (CentralAI) appContext.getBean("CentralAI");
     }
 }

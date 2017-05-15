@@ -14,19 +14,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany.credit.web.websocket.drawboard;
+package com.pvt.web.websocket.drawboard;
 
+
+import com.pvt.web.websocket.drawboard.DrawMessage.ParseException;
+import com.pvt.web.websocket.drawboard.wsmessages.StringWebsocketMessage;
+
+import javax.websocket.*;
 import java.io.EOFException;
-
-import javax.websocket.CloseReason;
-import javax.websocket.Endpoint;
-import javax.websocket.EndpointConfig;
-import javax.websocket.MessageHandler;
-import javax.websocket.Session;
-
-
-import com.mycompany.credit.web.websocket.drawboard.DrawMessage.ParseException;
-import com.mycompany.credit.web.websocket.drawboard.wsmessages.StringWebsocketMessage;
 
 
 public final class DrawboardEndpoint extends Endpoint {
@@ -192,8 +187,13 @@ public final class DrawboardEndpoint extends Endpoint {
                                 long msgId = Long.parseLong(
                                         messageContent.substring(0, indexOfChar));
 
-                                DrawMessage msg = DrawMessage.parseFromString(
-                                        messageContent.substring(indexOfChar + 1));
+                                DrawMessage msg = null;
+                                try {
+                                    msg = DrawMessage.parseFromString(
+                                            messageContent.substring(indexOfChar + 1));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
 
                                 // Don't ingore RuntimeExceptions thrown by
                                 // this method
@@ -206,9 +206,6 @@ public final class DrawboardEndpoint extends Endpoint {
 
                                 break;
                             }
-                        } catch (ParseException e) {
-                            // Client sent invalid data
-                            // Ignore, TODO: maybe close connection
                         } catch (RuntimeException e) {
                             // Client sent invalid data.
                             // Ignore, TODO: maybe close connection

@@ -45,30 +45,16 @@ public class ChatAnnotation implements ApplicationContextAware {
     private static ApplicationContext appContext;
     static CentralAI  centralAI;
 
-    private static final Logger logger = Logger.getLogger(ChatAnnotation.class);
-
-    private static final String GUEST_PREFIX = "Guest";
-    private static final AtomicInteger connectionIds = new AtomicInteger(0);
-
-    public static Set<ChatAnnotation> getConnections() {
-        return connections;
-    }
-
-    private static final Set<ChatAnnotation> connections =
-            new CopyOnWriteArraySet<>();
-
-    public String getNickname() {
-        return nickname;
-    }
-
     private  String nickname;
     private Session session;
 
-    private StringBuilder filteredMessage = new StringBuilder(256);
+    private static final Logger logger = Logger.getLogger(ChatAnnotation.class);
+    private static final Set<ChatAnnotation> connections = new CopyOnWriteArraySet<>();
+
 
     public ChatAnnotation() {
-        logger.debug("new instance " + this + " created. connectionIds=" + connectionIds);
-        nickname = GUEST_PREFIX + connectionIds.getAndIncrement();
+        logger.debug("new instance " + this + " created.");
+
     }
 
 
@@ -78,7 +64,6 @@ public class ChatAnnotation implements ApplicationContextAware {
         this.session = session;
         connections.add(this);
 
-       // broadcast(message);
     }
 
 
@@ -87,9 +72,7 @@ public class ChatAnnotation implements ApplicationContextAware {
         logger.debug("OnClose method of "+this+" is called");
         connections.remove(this);
 
-       // broadcast(message);
     }
-
 
     @OnMessage
     public void incoming(String message) {
@@ -143,8 +126,6 @@ public class ChatAnnotation implements ApplicationContextAware {
     }
 
 
-
-
     @OnError
     public void onError(Throwable t) throws Throwable {
         logger.error("Chat Error: " + t.toString(), t);
@@ -179,5 +160,13 @@ public class ChatAnnotation implements ApplicationContextAware {
         System.out.println("applicationContext ="+applicationContext);
         appContext=applicationContext;
         centralAI = (CentralAI) appContext.getBean("CentralAI");
+    }
+
+    public static Set<ChatAnnotation> getConnections() {
+        return connections;
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 }

@@ -1,4 +1,4 @@
-package com.pvt.domain.classification;
+package com.pvt.logic.classification;
 
 import java.util.Collection;
 

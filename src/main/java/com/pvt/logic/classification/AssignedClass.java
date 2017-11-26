@@ -1,4 +1,4 @@
-package com.pvt.domain.classification;
+package com.pvt.logic.classification;
 
 /**
  * Created by abe on 5/5/2017.

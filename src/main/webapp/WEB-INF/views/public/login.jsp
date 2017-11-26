@@ -7,7 +7,7 @@
     <meta http-equiv="x-ua-compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>IdeaLogic - Кредитные системы</title>
-    <link href="./resources/css/bootstrap.css" rel="stylesheet">
+    <link href="./resources/css/bootstra  p.css" rel="stylesheet">
     <link href="./resources/css/font-awesome.css" rel="stylesheet">
     <link href="./resources/css/jquery-ui.css" rel="stylesheet">
     <link rel="stylesheet" href="./resources/css/jquery-ui-slider-pips.css">

@@ -25,7 +25,7 @@
                         <div class="form-group" style="margin-bottom: 5px">
                             <textarea class="form-control" rows="5" ng-model="chatData"></textarea>
                         </div>
-                        <button ng-click="sendData()" class="btn btn-xs" style="float: right; margin-bottom: 30px">send</button>
+                        <button ng-click="sendDataAjax()" class="btn btn-xs" style="float: right; margin-bottom: 30px">send</button>
                         <div class="form-group">
                             <textarea class="form-control" rows="5" >{{chatPvtData}}</textarea>
                         </div>
@@ -63,7 +63,7 @@
 <div>
     <p>
         <span id="nickname">${nickname}</span>
-        <input type="text" id="chat" placeholder="${nickname} type and press 'enter' to chat" />
+        <textarea class="form-control" rows="2" id="chat" placeholder="${nickname} type and press 'enter' to chat"></textarea>
     </p>
 
 </div>
@@ -74,17 +74,16 @@
     var app = angular.module('chat', []);
     app.controller('chatCtrl', function($scope, $http) {
 
-        $scope.httppath="getPvtAnswer";
         $scope.chatPvtData="";
 
-        $scope.sendData = function(){
-
+        $scope.sendDataAjax = function(){
+            var httppath="getPvtAnswer";
             var data = {};
             data.clientData = $scope.chatData;
 
             $http({
                 method : "POST",
-                url : $scope.httppath,
+                url : httppath,
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -98,105 +97,109 @@
 
         }
 
+        $scope.chat ={};
+        $scope.registerTypingEventHandler=function(){
+
+            document.getElementById('chat').onkeydown = function(event) {
+                if (event.keyCode == 13) {
+                    var message = $scope.chat.getMessage();
+                    document.getElementById('chat').value = '';
+                    $scope.chat.socket.send(message +"\n");
+                }else{
+                    $scope.chat.socket.send('typing');
+                }
+            };
+        }
+
+        $scope.chat.getMessage = (function() {
+            var message = document.getElementById('chat').value;
+            if (message != '') {
+                return message;
+            }
+        });
+
+        $scope.output = {};
+        $scope.output.show = (function(message) {
+            var outputblock = document.getElementById('console');
+            if(message=="typing"){
+                return;
+            }
+
+            var utterance = new SpeechSynthesisUtterance();
+            utterance.text = message;
+            utterance.lang = 'ru-RU';
+            utterance.onend = function(e) {
+                $scope.chat.socket.send("#continue");
+            };
+            window.speechSynthesis.speak(utterance);
+
+            console.info(message);
+            if(message.startsWith("\n")){
+                var p = document.createElement('p');
+                outputblock.appendChild(p);
+            }
+
+            var span = document.createElement('span');
+            span.style.wordWrap = 'break-word';
+            span.innerHTML = message;
+            outputblock.appendChild(span);
+            while (outputblock.childNodes.length > 25) {
+                outputblock.removeChild(outputblock.firstChild);
+            }
+            outputblock.scrollTop = outputblock.scrollHeight;
+        });
 
         $scope.websocketInit=function () {
-            var Chat = {};
-            Chat.socket = null;
-            Chat.connect = (function(host) {
+
+            $scope.chat.socket = null;
+
+            (function socketInitialize() {
+                var host;
+
+                if (window.location.protocol == 'http:') {
+                    host= 'ws://' + window.location.host + '/pvt/websocket/chat';
+                } else {
+                    host = 'wss://' + window.location.host + '/pvt/websocket/chat';
+                }
+
                 if ('WebSocket' in window) {
-                    Chat.socket = new WebSocket(host);
+                    $scope.chat.socket = new WebSocket(host);
                 } else if ('MozWebSocket' in window) {
-                    Chat.socket = new MozWebSocket(host);
+                    $scope.chat.socket = new MozWebSocket(host);
                 } else {
                     Console.log('Error: WebSocket is not supported by this browser.');
                     return;
                 }
+            })();
 
-                Chat.socket.onopen = function () {
-                    var nickname = document.getElementById('nickname').innerHTML;
-                    Chat.socket.send('##'+nickname);
-                    console.log('Info: WebSocket connection opened.');
-                    document.getElementById('chat').onkeydown = function(event) {
-                        if (event.keyCode == 13) {
-                            var message = Chat.getMessage();
-                            document.getElementById('chat').value = '';
-                            Chat.socket.send(message +"\n");
-                        }else{
-                            Chat.socket.send('typing');
-                        }
-                    };
-
-                    while(!documentReady){
-                        setTimeout(function() {}, 500);
-                    }
-                    Chat.socket.send("#ready");
-
-                };
-
-                Chat.socket.onclose = function () {
-                    document.getElementById('chat').onkeydown = null;
-                    Output.log('Info: WebSocket closed.');
-                };
-
-                Chat.socket.onmessage = function (message) {
-                    Output.show(message.data);
-                };
-            });
-
-            Chat.initialize = function() {
-                if (window.location.protocol == 'http:') {
-                    Chat.connect('ws://' + window.location.host + '/pvt/websocket/chat');
-                } else {
-                    Chat.connect('wss://' + window.location.host + '/pvt/websocket/chat');
+            $scope.chat.socket.onopen = function () {
+                while(!documentReady){
+                    setTimeout(function() {}, 500);
                 }
+
+                var nickname = document.getElementById('nickname').innerHTML;
+                $scope.chat.socket.send('##'+nickname);
+                console.log('Info: WebSocket connection opened.');
+
+                $scope.chat.socket.send("#ready");
+
             };
 
-            Chat.getMessage = (function() {
-                var message = document.getElementById('chat').value;
-                if (message != '') {
-                    return message;
-                }
-            });
+            $scope.chat.socket.onclose = function () {
+                document.getElementById('chat').onkeydown = null;
+                Output.log('Info: WebSocket closed.');
+            };
 
-            var Output = {};
+            $scope.chat.socket.onmessage = function (message) {
+                $scope.output.show(message.data);
+            };
 
-            Output.show = (function(message) {
-                var outputblock = document.getElementById('console');
-                if(message=="typing"){
-                    return;
-                }
-
-                var utterance = new SpeechSynthesisUtterance();
-                utterance.text = message;
-                utterance.lang = 'ru-RU';
-                utterance.onend = function(e) {
-                    Chat.socket.send("#continue");
-                };
-                window.speechSynthesis.speak(utterance);
-
-                console.info(message);
-                if(message.startsWith("\n")){
-                    var p = document.createElement('p');
-                    outputblock.appendChild(p);
-                }
-
-                var span = document.createElement('span');
-                span.style.wordWrap = 'break-word';
-                span.innerHTML = message;
-                outputblock.appendChild(span);
-                while (outputblock.childNodes.length > 25) {
-                    outputblock.removeChild(outputblock.firstChild);
-                }
-                outputblock.scrollTop = outputblock.scrollHeight;
-            });
-
-            Chat.initialize();
-
+            $scope.registerTypingEventHandler();
 
         }
+
+
         $scope.websocketInit();
-
-
 
     });
 

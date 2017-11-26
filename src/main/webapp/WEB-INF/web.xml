@@ -52,8 +52,5 @@
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
 
-    <!-- Websocket -->
-    <listener>
-        <listener-class>com.pvt.web.websocket.drawboard.DrawboardContextListener</listener-class>
-    </listener>
+
 </web-app>

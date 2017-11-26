@@ -11,7 +11,7 @@ import java.util.Map;
  * Created by admin on 07.05.2017.
  */
 
-@Controller
+@RestController
 public class ChatController {
 
     private static final String CHAT_PAGE = "public/chat";

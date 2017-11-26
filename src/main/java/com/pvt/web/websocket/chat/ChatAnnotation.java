@@ -16,61 +16,56 @@
  */
 package com.pvt.web.websocket.chat;
 
-import com.pvt.domain.logic.core.CentralAI;
-import com.pvt.domain.logic.core.DialogState;
+import com.pvt.logic.logic.core.CentralAI;
+import com.pvt.logic.logic.core.DialogState;
+import com.pvt.web.utils.ContextUtil;
 import com.pvt.web.utils.HTMLFilter;
 import org.apache.log4j.Logger;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.inject.Scope;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 @ServerEndpoint(value = "/websocket/chat")
-@Component
-public class ChatAnnotation implements ApplicationContextAware {
-
-    private static ApplicationContext appContext;
-    static CentralAI  centralAI;
+public class ChatAnnotation {
 
     private  String nickname;
     private Session session;
 
     private static final Logger logger = Logger.getLogger(ChatAnnotation.class);
-    private static final Set<ChatAnnotation> connections = new CopyOnWriteArraySet<>();
+
+    private static final Map<String, ChatAnnotation> connections = new ConcurrentHashMap<>();
 
 
     public ChatAnnotation() {
-        logger.debug("new instance " + this + " created.");
+        logger.debug("!!! new instance " + this + " created.");
 
     }
-
 
     @OnOpen
     public void start(Session session) {
         logger.debug("OnOpen method of " + this + " is called. Session is " + session);
         this.session = session;
-        connections.add(this);
 
     }
-
 
     @OnClose
     public void end() {
         logger.debug("OnClose method of "+this+" is called");
-        connections.remove(this);
+        connections.remove(this.nickname);
 
     }
 
@@ -78,48 +73,53 @@ public class ChatAnnotation implements ApplicationContextAware {
     public void incoming(String message) {
         System.out.println("Thread="+Thread.currentThread());
         System.out.println("message=" + message);
+
+        ApplicationContext appContext= ContextUtil.getApplicationContext();
+        CentralAI centralAI = (CentralAI) appContext.getBean("CentralAI");
+
         try {
 
             if (message.contains("\n")) {
-
-                String messageToSend = String.format("%s: %s",
-                        nickname, HTMLFilter.filter(message.toString()));
+                String messageToSend = String.format("%s: %s", nickname, HTMLFilter.filter(message.toString()));
                 //  broadcast(messageToSend);
-
-            } else {
-                if (message.startsWith("##")) {
-                    nickname = message.substring(2);
-                    //    broadcast(nickname + " has joined");
-                } else if (message.equals("#continue")) {
-                    if(centralAI.dialogStates.get(nickname)==null){
-                        centralAI.dialogStates.put(nickname, new DialogState(true, true)) ;
-                    }else{
-                        centralAI.dialogStates.get(nickname).setCanContinue(true);
-                        System.out.println("continue");
-                    }
-
-                } else if (message.equals("#ready")) {
-                    Thread.sleep(2000);
-                    boolean newThread = true;
-                    for(Thread thread:Thread.getAllStackTraces().keySet()){
-                        if(thread.getName().startsWith(nickname)){
-                            centralAI.dialogStates.get(nickname).setCanContinue(true);
-                            centralAI.dialogStates.get(nickname).setAfterResume(true);
-                            newThread = false;
-                        }
-                    }
-                    if(newThread){
-                        new Thread(nickname+System.currentTimeMillis()) {
-                            public void run() {
-                                centralAI.doSomeWork();
-                            }
-                        }.start();
-                    }
-
-
-                }
+                return;
             }
+            if (message.startsWith("##")) {
+                this.nickname = message.substring(2);
+                connections.put(this.nickname, this);
+                return;
+            }
+            if (message.equals("#continue")) {
+                if(centralAI.dialogStates.get(nickname)==null){
+                    centralAI.dialogStates.put(nickname, new DialogState(true, true)) ;
+                }else{
+                    centralAI.dialogStates.get(nickname).setCanContinue(true);
+                    System.out.println("continue");
+                }
+                return;
+            }
+            if (message.equals("#ready")) {
+                Thread.sleep(2000);
+                boolean newThread = true;
+                for(Thread thread:Thread.getAllStackTraces().keySet()){
+                   if(thread.getName().startsWith(nickname)){
+                       centralAI.dialogStates.get(nickname).setCanContinue(true);
+                       centralAI.dialogStates.get(nickname).setAfterResume(true);
+                       newThread = false;
+                   }
+                }
+                if(newThread){
+                    new Thread(nickname+System.currentTimeMillis()) {
+                        public void run() {
+                            centralAI.doSomeWork();
+                        }
+                    }.start();
+                }
+
+            }
+
         }catch (Exception e){
+            System.out.println("!!! "+e);
 
         }
 
@@ -128,41 +128,35 @@ public class ChatAnnotation implements ApplicationContextAware {
 
     @OnError
     public void onError(Throwable t) throws Throwable {
-        logger.error("Chat Error: " + t.toString(), t);
+        logger.error("!!! Chat Error: " + t.toString(), t);
     }
 
 
     public static void broadcast(String msg) {
-        for (ChatAnnotation client : connections) {
+        for (String client : connections.keySet()) {
             try {
-                if(client.nickname.equals("Fresher")) {
+                if(client.equals("Fresher")) {
                     synchronized (client) {
-                        client.session.getBasicRemote().sendText(msg);
+                        connections.get(client).session.getBasicRemote().sendText(msg);
                     }
                 }
             } catch (IOException e) {
                 logger.debug("Chat Error: Failed to send message to client", e);
                 connections.remove(client);
                 try {
-                    client.session.close();
+                    connections.get(client).session.close();
                 } catch (IOException e1) {
                     // Ignore
                 }
                 String message = String.format("* %s %s",
-                        client.nickname, "has been disconnected.");
+                        client, "has been disconnected.");
                 broadcast(message);
             }
         }
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        System.out.println("applicationContext ="+applicationContext);
-        appContext=applicationContext;
-        centralAI = (CentralAI) appContext.getBean("CentralAI");
-    }
 
-    public static Set<ChatAnnotation> getConnections() {
+    public static Map<String,ChatAnnotation> getConnections() {
         return connections;
     }
 

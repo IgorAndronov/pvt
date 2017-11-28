@@ -128,7 +128,10 @@
             var utterance = new SpeechSynthesisUtterance();
             utterance.text = message;
             utterance.lang = 'ru-RU';
+            var voices = window.speechSynthesis.getVoices();
+            utterance.voice = voices.filter(function(voice) { return voice.lang == 'ru-RU'; })[0];
             utterance.onend = function(e) {
+                console.info("send #continue");
                 $scope.chat.socket.send("#continue");
             };
             window.speechSynthesis.speak(utterance);
@@ -187,7 +190,7 @@
 
             $scope.chat.socket.onclose = function () {
                 document.getElementById('chat').onkeydown = null;
-                Output.log('Info: WebSocket closed.');
+                console.log('Info: WebSocket closed.');
             };
 
             $scope.chat.socket.onmessage = function (message) {

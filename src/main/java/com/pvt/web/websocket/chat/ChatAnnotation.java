@@ -94,7 +94,7 @@ public class ChatAnnotation {
                     centralAI.dialogStates.put(nickname, new DialogState(true, true)) ;
                 }else{
                     centralAI.dialogStates.get(nickname).setCanContinue(true);
-                    System.out.println("continue");
+                    System.out.println("continue with existing user");
                 }
                 return;
             }
@@ -111,6 +111,7 @@ public class ChatAnnotation {
                 if(newThread){
                     new Thread(nickname+System.currentTimeMillis()) {
                         public void run() {
+                            System.out.println("!!! Thread= "+Thread.currentThread());
                             centralAI.doSomeWork();
                         }
                     }.start();

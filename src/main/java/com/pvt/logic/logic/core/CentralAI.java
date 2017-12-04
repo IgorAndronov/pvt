@@ -81,7 +81,7 @@ public class CentralAI {
        try {
            while(!dialogStates.get(connection.getNickname()).getCanContinue()){
                Thread.currentThread().sleep(200);
-               System.out.println(connection.getNickname() + " "+ dialogStates.get(connection.getNickname()).getCanContinue());
+             //  System.out.println(connection.getNickname() + " "+ dialogStates.get(connection.getNickname()).getCanContinue());
            }
        }catch (Exception e){
 

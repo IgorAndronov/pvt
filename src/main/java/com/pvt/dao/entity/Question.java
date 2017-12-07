@@ -19,7 +19,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"children","parent"})
 @Entity
 @Table(name = "question")
 public class Question extends BaseEntity<Long> {
@@ -32,6 +32,9 @@ public class Question extends BaseEntity<Long> {
 
     @Column
     private boolean questionRequired =  true;
+
+    @Column
+    private boolean answerRequired = true;
 
 
     @ManyToOne

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,7 +18,7 @@ import javax.persistence.Table;
 public class RoutineMeasurement extends BaseEntity<Long> {
 
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "measurement_unit_id")
     private MeasurementUnit measurementUnit;
 

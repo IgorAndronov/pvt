@@ -46,11 +46,19 @@ public class Survey extends BaseEntity<Long> {
     @Column
     private Date endTime;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "SurveyQuestion",
             joinColumns = { @JoinColumn(name = "survey_id") },
             inverseJoinColumns = { @JoinColumn(name = "question_id") }
     )
     private Collection<Question> questions = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "SurveyAnswer",
+            joinColumns = { @JoinColumn(name = "survey_id") },
+            inverseJoinColumns = { @JoinColumn(name = "answer_id") }
+    )
+    private Collection<Answer> answers = new ArrayList<>();
 }

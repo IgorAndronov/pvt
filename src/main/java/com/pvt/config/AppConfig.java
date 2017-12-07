@@ -2,6 +2,7 @@ package com.pvt.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -22,18 +23,26 @@ import java.util.Properties;
 @EnableTransactionManagement
 @PropertySource("classpath:jdbc.properties")
 @EnableJpaRepositories(basePackages = "com.pvt.dao.repository")
-public class TestConfig {
+@ComponentScan("com.pvt")
+public class AppConfig {
 
-    @Value("${jdbc.driverClassName}") String direverClassName;
-    @Value("${jdbc.url}") String jdbcUrl;
-    @Value("${jdbc.username}") String jdbcUsername;
-    @Value("${jdbc.password}") String jdbcPassword;
+    @Value("${jdbc.driverClassName}")
+    String direverClassName;
+
+    @Value("${jdbc.url}")
+    String jdbcUrl;
+
+    @Value("${jdbc.username}")
+    String jdbcUsername;
+
+    @Value("${jdbc.password}")
+    String jdbcPassword;
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource());
-        em.setPackagesToScan(new String[] { "com.pvt.dao.entity" });
+        em.setPackagesToScan(new String[]{"com.pvt.dao.entity"});
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setGenerateDdl(true);
@@ -44,17 +53,17 @@ public class TestConfig {
     }
 
     @Bean
-    public DataSource dataSource(){
+    public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(direverClassName);
         dataSource.setUrl(jdbcUrl);
-        dataSource.setUsername( jdbcUsername);
-        dataSource.setPassword( jdbcPassword );
+        dataSource.setUsername(jdbcUsername);
+        dataSource.setPassword(jdbcPassword);
         return dataSource;
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);
 
@@ -62,7 +71,7 @@ public class TestConfig {
     }
 
     @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation(){
+    public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 
@@ -70,7 +79,7 @@ public class TestConfig {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
         properties.put("hibernate.hbm2ddl.auto", "create-drop");
-        properties.setProperty("hibernate.id.new_generator_mappings","true");
+        properties.setProperty("hibernate.id.new_generator_mappings", "true");
 
         return properties;
     }

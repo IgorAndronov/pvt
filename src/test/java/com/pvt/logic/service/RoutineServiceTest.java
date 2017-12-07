@@ -1,7 +1,7 @@
 package com.pvt.logic.service;
 
 
-import com.pvt.config.TestConfig;
+import com.pvt.config.AppConfig;
 import com.pvt.dao.entity.Exercise;
 import com.pvt.dao.entity.ExerciseGroup;
 import com.pvt.dao.entity.Routine;
@@ -12,13 +12,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = AppConfig.class)
 public class RoutineServiceTest {
 
     @Autowired

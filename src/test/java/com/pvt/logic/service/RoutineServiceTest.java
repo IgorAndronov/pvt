@@ -1,7 +1,7 @@
 package com.pvt.logic.service;
 
 
-import com.pvt.AbstractDbTest;
+import com.pvt.config.TestConfig;
 import com.pvt.dao.entity.Exercise;
 import com.pvt.dao.entity.ExerciseGroup;
 import com.pvt.dao.entity.Routine;
@@ -9,20 +9,26 @@ import com.pvt.dao.entity.RoutineExercise;
 import com.pvt.dao.repository.QuestionRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
 
-public class RoutineServiceTest extends AbstractDbTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TestConfig.class)
+public class RoutineServiceTest {
 
     @Autowired
     private QuestionRepository questionRepository;
 
 
     @Before
-    public void setUp(){
+    public void setUp() {
 
-        assertEquals(0,questionRepository.count());
+        assertEquals(0, questionRepository.count());
         final Routine routine = new Routine();
         routine.setName("Mass gain program");
         routine.setName("Program for mass gaining");
@@ -55,19 +61,13 @@ public class RoutineServiceTest extends AbstractDbTest {
         routineExercise2.setRoutine(routine);
 
 
-
-
-
-
     }
 
 
     @Test
-    public void testSearchRoutines(){
+    public void testSearchRoutines() {
 
     }
-
-
 
 
 }

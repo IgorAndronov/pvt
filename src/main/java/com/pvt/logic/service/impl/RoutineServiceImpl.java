@@ -12,11 +12,11 @@ public class RoutineServiceImpl implements RoutineService {
     public SearchRoutineResult search(SearchRoutineContext searchProgramContext) {
         final SearchRoutineResult result = new SearchRoutineResult();
 
-        searchProgramContext.getAnswers().forEach(answer -> {
-            if (answer.getMeasurement() != null) {
-                //Find measurement in database
-            }
-        });
+//        searchProgramContext.getAnswers().forEach(answer -> {
+//            if (answer.getMeasurement() != null) {
+//                //Find measurement in database
+//            }
+//        });
         return result;
     }
 }

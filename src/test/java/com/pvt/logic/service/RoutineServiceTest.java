@@ -1,18 +1,28 @@
 package com.pvt.logic.service;
 
 
+import com.pvt.AbstractDbTest;
 import com.pvt.dao.entity.Exercise;
 import com.pvt.dao.entity.ExerciseGroup;
 import com.pvt.dao.entity.Routine;
 import com.pvt.dao.entity.RoutineExercise;
+import com.pvt.dao.repository.QuestionRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class RoutineServiceTest {
+import static org.junit.Assert.assertEquals;
+
+public class RoutineServiceTest extends AbstractDbTest {
+
+    @Autowired
+    private QuestionRepository questionRepository;
 
 
     @Before
     public void setUp(){
+
+        assertEquals(0,questionRepository.count());
         final Routine routine = new Routine();
         routine.setName("Mass gain program");
         routine.setName("Program for mass gaining");

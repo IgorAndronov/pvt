@@ -43,9 +43,10 @@
         <property name="hibernate.id.new_generator_mappings">true</property>
 
         <!--mapping classes-->
-        <mapping class="com.pvt.dao.entity.Test"/>
-        <mapping class="com.pvt.dao.entity.ExternalUser"/>
-
+        <mapping package="com.pvt.dao.entity"/>
+        <!--<mapping class="com.pvt.dao.entity.ExternalUser"/>-->
+        <!--<mapping class="com.pvt.dao.entity.Question"/>-->
+        <!--<mapping class="com.pvt.dao.entity.Answer"/>-->
 
 
 

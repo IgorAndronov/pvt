@@ -5,12 +5,16 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.function.Function;
 
 @Getter
 @Setter
 @ToString
 @Entity
+@Table(name="measurement")
 public class Measurement extends BaseEntity<Long> implements Function<Measurement, Boolean> {
 
     public enum MeasurementOperationType {
@@ -19,6 +23,8 @@ public class Measurement extends BaseEntity<Long> implements Function<Measuremen
         LT,
     }
 
+    @ManyToOne
+    @JoinColumn(name = "measurement_unit_id")
     private MeasurementUnit measurementUnit;
 
     private MeasurementOperationType measurementOperationType = MeasurementOperationType.EQUALS;

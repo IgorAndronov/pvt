@@ -13,11 +13,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Getter
 @Setter
 @ToString
 @Entity
+@Table(name="measurement_unit")
 public class MeasurementUnit extends BaseEntity<Long> {
 
     public enum MeasurementUnitType {

@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 @Getter
 @Setter
 @ToString
-@Entity
 public class MeasurementRoutine extends BaseEntity<Long> {
 
     private Measurement measurement;

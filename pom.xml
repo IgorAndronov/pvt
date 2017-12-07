@@ -94,14 +94,39 @@
             <artifactId>spring-orm</artifactId>
             <version>${spring.version}</version>
         </dependency>
-        <!--Hibernate-->
+
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+            <version>1.2.0.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <version>1.0.0.Final</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-ehcache -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-ehcache</artifactId>
@@ -140,11 +165,11 @@
             <version>1.16.16</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.mycompany.credit</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>9.4</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.mycompany.credit</groupId>-->
+            <!--<artifactId>postgresql</artifactId>-->
+            <!--<version>9.4</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>

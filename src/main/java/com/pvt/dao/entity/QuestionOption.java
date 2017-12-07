@@ -10,7 +10,6 @@ import javax.persistence.Entity;
 @Getter
 @Setter
 @ToString
-@Entity
 public class QuestionOption extends BaseEntity<Long> {
 
     private Question question;

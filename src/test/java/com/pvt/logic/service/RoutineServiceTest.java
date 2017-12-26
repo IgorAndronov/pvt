@@ -14,6 +14,7 @@ import com.pvt.dao.entity.Routine;
 import com.pvt.dao.entity.RoutineExercise;
 import com.pvt.dao.entity.RoutineMeasurement;
 import com.pvt.dao.entity.Survey;
+import com.pvt.dao.entity.UserSurvey;
 import com.pvt.dao.repository.ExerciseRepository;
 import com.pvt.dao.repository.ExternalUserRepository;
 import com.pvt.dao.repository.GenericRepository;
@@ -21,6 +22,7 @@ import com.pvt.dao.repository.MeasurementUnitRepository;
 import com.pvt.dao.repository.QuestionRepository;
 import com.pvt.dao.repository.RoutineRepository;
 import com.pvt.dao.repository.SurveyRepository;
+import com.pvt.dao.repository.UserSurveyRepository;
 import com.pvt.logic.model.SearchRoutineContext;
 import com.pvt.logic.model.SearchRoutineResult;
 import org.junit.Before;
@@ -66,6 +68,9 @@ public class RoutineServiceTest {
     @Autowired
     private SurveyRepository surveyRepository;
 
+    @Autowired
+    private UserSurveyRepository userSurveyRepository;
+
 
     @Autowired
     private ExternalUserRepository userRepository;
@@ -90,15 +95,15 @@ public class RoutineServiceTest {
         genericRepository.save(user);
 
         final Survey survey = new Survey();
+        final UserSurvey userSurvey = new UserSurvey();
 
-        survey.setStartTime(new Date());
         survey.setName("Basic questions survey");
-        survey.setSurveyStatus(Survey.SurveyStatus.IN_PROGRESS);
+
         final List<Question> questions = StreamSupport.stream(questionRepository.findAll().spliterator(), false).collect(Collectors.toList());
         final Question weightQuestion = questions.stream().filter(q -> q.getMeasurementUnit().getName().equals(PLANNED_DESTINATION_WEIGHT_MEASUREMENT_UNIT)).findAny().get();
         final Question trainsPerWeekQuestion = questions.stream().filter(q -> q.getMeasurementUnit().getName().equals(COUNT_OF_TRAININS_PER_WEEK_MEASUREMENT_UNIT)).findAny().get();
         survey.setQuestions(questions);
-        survey.setUser(user);
+
         assertEquals(2, survey.getQuestions().size());
 
         final Answer answerToWeight = new Answer();
@@ -125,12 +130,20 @@ public class RoutineServiceTest {
 
         genericRepository.save(answerToCountOfTrainsPerWeek);
 
-        survey.getAnswers().add(answerToWeight);
-        survey.getAnswers().add(answerToCountOfTrainsPerWeek);
+
 
         genericRepository.save(survey);
 
-        assertEquals(2, survey.getAnswers().size());
+
+        userSurvey.setUser(user);
+        userSurvey.setSurvey(survey);
+
+
+        userSurvey.getAnswers().add(answerToWeight);
+        userSurvey.getAnswers().add(answerToCountOfTrainsPerWeek);
+
+        genericRepository.save(userSurvey);
+        assertEquals(2, userSurvey.getAnswers().size());
 
 
     }
@@ -228,7 +241,7 @@ public class RoutineServiceTest {
 
     @Test
     public void testSearchRoutines() {
-        final Survey survey = surveyRepository.findByUser(userRepository.findByName("dude")).get(0);
+        final UserSurvey survey = userSurveyRepository.findByUser(userRepository.findByName("dude")).get(0);
         assertNotNull(survey);
 
         final SearchRoutineResult result = routineSearchService.search(SearchRoutineContext.of(survey));

@@ -1,14 +1,22 @@
 package com.pvt.logic.logic.core;
 
-/**
- * Created by admin on 14.05.2017.
- */
+import com.pvt.dao.entity.Question;
+import com.pvt.dao.entity.UserSurvey;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class DialogState {
 
     Boolean canContinue;
     Boolean afterResume;
 
     int lastAnchorBeforeResume = 0;
+
+    private Question currentQuestion;
+
+    private UserSurvey userSurvey = new UserSurvey();
 
     public int getLastAnchorBeforeResume() {
         return lastAnchorBeforeResume;

@@ -119,7 +119,11 @@
         });
 
         $scope.output = {};
-        $scope.output.show = (function(message) {
+        $scope.output.show = (function(qJson) {
+            var question = JSON.parse(qJson);
+            var qId = question.id;
+            var message = question.text;
+            var isAnswerRequired = question.answerRequired;
             var outputblock = document.getElementById('console');
             if(message=="typing"){
                 return;
@@ -131,8 +135,13 @@
             var voices = window.speechSynthesis.getVoices();
             utterance.voice = voices.filter(function(voice) { return voice.lang == 'ru-RU'; })[0];
             utterance.onend = function(e) {
-                console.info("send #continue");
-                $scope.chat.socket.send("#continue");
+                if(isAnswerRequired){
+                    console.info("Awaiting answer");
+                    $scope.chat.socket.send("#answerRequired");
+                }else {
+                    console.info("send #continue");
+                    $scope.chat.socket.send("#continue");
+                }
             };
             window.speechSynthesis.speak(utterance);
 

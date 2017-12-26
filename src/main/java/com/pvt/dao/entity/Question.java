@@ -24,6 +24,14 @@ import java.util.Collection;
 @Table(name = "question")
 public class Question extends BaseEntity<Long> {
 
+
+    public static final Question createAnswerNotRequired(String text){
+        final Question q = new Question();
+        q.setQuestion(text);
+        q.setAnswerRequired(false);
+
+        return q;
+    }
     @Column
     private QuestionInputType questionInputType = QuestionInputType.TEXT;
 

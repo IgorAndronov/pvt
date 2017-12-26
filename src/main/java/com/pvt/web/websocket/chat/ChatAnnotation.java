@@ -16,6 +16,7 @@
  */
 package com.pvt.web.websocket.chat;
 
+import com.pvt.dao.entity.Question;
 import com.pvt.logic.logic.core.CentralAI;
 import com.pvt.logic.logic.core.DialogState;
 import com.pvt.web.utils.ContextUtil;
@@ -39,7 +40,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-@ServerEndpoint(value = "/websocket/chat")
+@ServerEndpoint(value = "/websocket/chat", encoders = {QuestionEncoder.class})
 public class ChatAnnotation {
 
     private  String nickname;
@@ -90,10 +91,10 @@ public class ChatAnnotation {
                 return;
             }
             if (message.equals("#continue")) {
-                if(centralAI.dialogStates.get(nickname)==null){
-                    centralAI.dialogStates.put(nickname, new DialogState(true, true)) ;
+                if(CentralAI.StateHolder.INSTANCE.getState(nickname)==null){
+                    CentralAI.StateHolder.INSTANCE.setState(nickname, new DialogState(true, true)); ;
                 }else{
-                    centralAI.dialogStates.get(nickname).setCanContinue(true);
+                    CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
                     System.out.println("continue with existing user");
                 }
                 return;
@@ -103,8 +104,8 @@ public class ChatAnnotation {
                 boolean newThread = true;
                 for(Thread thread:Thread.getAllStackTraces().keySet()){
                    if(thread.getName().startsWith(nickname)){
-                       centralAI.dialogStates.get(nickname).setCanContinue(true);
-                       centralAI.dialogStates.get(nickname).setAfterResume(true);
+                       CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
+                       CentralAI.StateHolder.INSTANCE.getState(nickname).setAfterResume(true);
                        newThread = false;
                    }
                 }
@@ -133,15 +134,15 @@ public class ChatAnnotation {
     }
 
 
-    public static void broadcast(String msg) {
+    public static void broadcast(Question question) {
         for (String client : connections.keySet()) {
             try {
                 if(client.equals("Fresher")) {
                     synchronized (client) {
-                        connections.get(client).session.getBasicRemote().sendText(msg);
+                        connections.get(client).session.getBasicRemote().sendObject(question);
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.debug("Chat Error: Failed to send message to client", e);
                 connections.remove(client);
                 try {
@@ -151,7 +152,7 @@ public class ChatAnnotation {
                 }
                 String message = String.format("* %s %s",
                         client, "has been disconnected.");
-                broadcast(message);
+                broadcast(Question.createAnswerNotRequired(message));
             }
         }
     }

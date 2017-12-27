@@ -18,6 +18,7 @@ import com.pvt.dao.repository.QuestionRepository;
 import com.pvt.init.DataCreator;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -27,6 +28,7 @@ import static java.util.stream.Stream.of;
 import static java.util.stream.StreamSupport.stream;
 
 @Component
+@Profile("!test")
 @Log4j
 public class QuestionnariesDataCreator implements DataCreator {
 

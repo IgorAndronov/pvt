@@ -40,7 +40,8 @@ public class RoutineSearchServiceImpl implements RoutineSearchService {
                 .stream()
                 .map(Answer::getMeasurement)
                 .map(Measurement::getMeasurementUnit)
-                .map(MeasurementUnit::getName).collect(Collectors.toList());
+                .map(MeasurementUnit::getName)
+                .collect(Collectors.toList());
 
         final Iterable<RoutineMeasurement> routineMeasurements = routineMeasurementRepository.findByMeasurementUnitNameIsIn(measurementUnitNames);
         routineMeasurements.forEach(routineMeasurement -> {

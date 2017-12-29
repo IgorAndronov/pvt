@@ -27,7 +27,7 @@
                         </div>
                         <button ng-click="sendDataAjax()" class="btn btn-xs" style="float: right; margin-bottom: 30px">send</button>
                         <div class="form-group">
-                            <textarea class="form-control" rows="5" >{{chatPvtData}}</textarea>
+                            <textarea id="answerTextArea" class="form-control" rows="5" >{{chatPvtData}}</textarea>
                         </div>
 
                     </div>
@@ -91,6 +91,9 @@
 
             }).then(function mySucces(response) {
                 $scope.chatPvtData += response.data.name +"\n";
+                $scope.chat.socket.send("#ready");
+                document.getElementById('answerTextArea').value='';
+
             }, function myError(response) {
                 $scope.chatPvtData = response.statusText;
             });
@@ -146,7 +149,7 @@
             window.speechSynthesis.speak(utterance);
 
             console.info(message);
-            if(message.startsWith("\n")){
+            if(message.startsWith("\n") || isAnswerRequired){
                 var p = document.createElement('p');
                 outputblock.appendChild(p);
             }

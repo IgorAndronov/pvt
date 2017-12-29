@@ -41,6 +41,7 @@ public class ChatController {
         final Question question = state.getCurrentQuestion();
 
         state.getUserSurvey().getAnswers().add(createAnswer(question,userName,params));
+        state.setCanContinue(true);
         return "{\"name\":\"hello\"}";
 
     }

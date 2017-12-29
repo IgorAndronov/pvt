@@ -18,32 +18,27 @@ package com.pvt.web.websocket.chat;
 
 import com.pvt.dao.entity.Question;
 import com.pvt.logic.logic.core.CentralAI;
-import com.pvt.logic.logic.core.DialogState;
 import com.pvt.web.utils.ContextUtil;
 import com.pvt.web.utils.HTMLFilter;
 import org.apache.log4j.Logger;
-
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.websocket.*;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 @ServerEndpoint(value = "/websocket/chat", encoders = {QuestionEncoder.class})
 public class ChatAnnotation {
 
-    private  String nickname;
+    private String nickname;
+
     private Session session;
 
     private static final Logger logger = Logger.getLogger(ChatAnnotation.class);
@@ -65,17 +60,17 @@ public class ChatAnnotation {
 
     @OnClose
     public void end() {
-        logger.debug("OnClose method of "+this+" is called");
+        logger.debug("OnClose method of " + this + " is called");
         connections.remove(this.nickname);
 
     }
 
     @OnMessage
     public void incoming(String message) {
-        System.out.println("Thread="+Thread.currentThread());
+        System.out.println("Thread=" + Thread.currentThread());
         System.out.println("message=" + message);
 
-        ApplicationContext appContext= ContextUtil.getApplicationContext();
+        ApplicationContext appContext = ContextUtil.getApplicationContext();
         CentralAI centralAI = (CentralAI) appContext.getBean("CentralAI");
 
         try {
@@ -90,41 +85,51 @@ public class ChatAnnotation {
                 connections.put(this.nickname, this);
                 return;
             }
-            if (message.equals("#continue")) {
-                if(CentralAI.StateHolder.INSTANCE.getState(nickname)==null){
-                    CentralAI.StateHolder.INSTANCE.setState(nickname, new DialogState(true, true)); ;
-                }else{
+
+            switch (message){
+                case "#answerRequired":{
+                    handleAnswerRequired();
+                    break;
+                }
+                case "#ready":{
+                    handleReady(centralAI);
+                    break;
+                }
+                case "#continue":{
                     CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
                     System.out.println("continue with existing user");
+                    break;
                 }
-                return;
             }
-            if (message.equals("#ready")) {
-                Thread.sleep(2000);
-                boolean newThread = true;
-                for(Thread thread:Thread.getAllStackTraces().keySet()){
-                   if(thread.getName().startsWith(nickname)){
-                       CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
-                       CentralAI.StateHolder.INSTANCE.getState(nickname).setAfterResume(true);
-                       newThread = false;
-                   }
-                }
-                if(newThread){
-                    new Thread(nickname+System.currentTimeMillis()) {
-                        public void run() {
-                            System.out.println("!!! Thread= "+Thread.currentThread());
-                            centralAI.doSomeWork();
-                        }
-                    }.start();
-                }
-
-            }
-
-        }catch (Exception e){
-            System.out.println("!!! "+e);
+        } catch (Exception e) {
+            logger.error(e.getMessage(),e);
 
         }
 
+    }
+
+    private void handleAnswerRequired() {
+        CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(false);
+    }
+
+    private void handleReady(final CentralAI centralAI) throws InterruptedException {
+        Thread.sleep(2000);
+        boolean newThread = true;
+        for (Thread thread : Thread.getAllStackTraces().keySet()) {
+            if (thread.getName().startsWith(nickname)) {
+                CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
+                CentralAI.StateHolder.INSTANCE.getState(nickname).setAfterResume(true);
+                newThread = false;
+            }
+        }
+        if (newThread) {
+            new Thread(nickname + System.currentTimeMillis()) {
+                public void run() {
+                    System.out.println("!!! Thread= " + Thread.currentThread());
+                    centralAI.doSomeWork();
+                }
+            }.start();
+        }
     }
 
 
@@ -137,7 +142,7 @@ public class ChatAnnotation {
     public static void broadcast(Question question) {
         for (String client : connections.keySet()) {
             try {
-                if(client.equals("Fresher")) {
+                if (client.equals("Fresher")) {
                     synchronized (client) {
                         connections.get(client).session.getBasicRemote().sendObject(question);
                     }
@@ -158,7 +163,7 @@ public class ChatAnnotation {
     }
 
 
-    public static Map<String,ChatAnnotation> getConnections() {
+    public static Map<String, ChatAnnotation> getConnections() {
         return connections;
     }
 

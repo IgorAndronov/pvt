@@ -3,6 +3,7 @@ package com.pvt.init.impl;
 
 import com.pvt.dao.entity.Exercise;
 import com.pvt.dao.entity.ExerciseGroup;
+import com.pvt.dao.entity.Measurement;
 import com.pvt.dao.entity.MeasurementUnit;
 import com.pvt.dao.entity.Option;
 import com.pvt.dao.entity.OptionGroup;
@@ -33,20 +34,21 @@ import static java.util.stream.StreamSupport.stream;
 public class QuestionnariesDataCreator implements DataCreator {
 
 
-    public static final String PLANNED_DESTINATION_WEIGHT_MEASUREMENT_UNIT = "PLANNED_DESTINATION_WEIGHT";
-
-    public static final String COUNT_OF_TRAININS_PER_WEEK_MEASUREMENT_UNIT = "COUNT_OF_TRAININS_PER_WEEK";
+    private final GenericRepository genericRepository;
 
 
-    @Autowired
-    private GenericRepository genericRepository;
+    private final MeasurementUnitRepository measurementUnitRepository;
 
-    @Autowired
-    private MeasurementUnitRepository measurementUnitRepository;
+
+    private final QuestionRepository questionRepository;
+
 
     @Autowired
-    private QuestionRepository questionRepository;
-
+    public QuestionnariesDataCreator(GenericRepository genericRepository, MeasurementUnitRepository measurementUnitRepository, QuestionRepository questionRepository) {
+        this.genericRepository = genericRepository;
+        this.measurementUnitRepository = measurementUnitRepository;
+        this.questionRepository = questionRepository;
+    }
 
     @PostConstruct
     @Override
@@ -55,7 +57,78 @@ public class QuestionnariesDataCreator implements DataCreator {
         createMeasurementUnits();
         createIntroductionSurveyQuestions();
         createFindProgramSurvey();
+        createRoutines();
 
+    }
+
+    private void createRoutines() {
+        createMassGainRoutine();
+        createLostWeightRoutine();
+
+    }
+
+    private void createLostWeightRoutine() {
+        final Routine lostWeightRoutine = new Routine();
+
+        lostWeightRoutine.setName("Программа тренировок для похудения");
+        lostWeightRoutine.setRoutineType(Routine.RoutineType.GYM);
+        genericRepository.save(lostWeightRoutine);
+        final RoutineMeasurement trainTargetMeasurementRoutine = new RoutineMeasurement();
+        trainTargetMeasurementRoutine.setMeasurementUnit(measurementUnitRepository.findByName("TRAIN_TARGET"));
+        trainTargetMeasurementRoutine.setRoutine(lostWeightRoutine);
+        trainTargetMeasurementRoutine.setMeasurementOperationType(Measurement.MeasurementOperationType.EQUALS);
+        trainTargetMeasurementRoutine.setValueStart("Похудеть");
+        genericRepository.save(trainTargetMeasurementRoutine);
+
+        final RoutineMeasurement heightRoutineMeasurement = new RoutineMeasurement();
+        heightRoutineMeasurement.setMeasurementUnit(measurementUnitRepository.findByName("HEIGHT"));
+        heightRoutineMeasurement.setRoutine(lostWeightRoutine);
+        heightRoutineMeasurement.setMeasurementOperationType(Measurement.MeasurementOperationType.GT);
+        heightRoutineMeasurement.setValueStart("120");
+        genericRepository.save(heightRoutineMeasurement);
+
+        final RoutineMeasurement weightRoutineMeasurement = new RoutineMeasurement();
+        weightRoutineMeasurement.setMeasurementUnit(measurementUnitRepository.findByName("WEIGHT"));
+        weightRoutineMeasurement.setRoutine(lostWeightRoutine);
+        weightRoutineMeasurement.setMeasurementOperationType(Measurement.MeasurementOperationType.EQUALS);
+        weightRoutineMeasurement.setValueStart("90");
+        weightRoutineMeasurement.setValueEnd("180");
+        genericRepository.save(weightRoutineMeasurement);
+
+    }
+
+    private Routine createMassGainRoutine() {
+        final Routine massGainRoutine = new Routine();
+
+        massGainRoutine.setName("Программа набора мышечной массы");
+        massGainRoutine.setRoutineType(Routine.RoutineType.GYM);
+        genericRepository.save(massGainRoutine);
+
+
+        final RoutineMeasurement trainTargetMeasurementRoutine = new RoutineMeasurement();
+        trainTargetMeasurementRoutine.setMeasurementUnit(measurementUnitRepository.findByName("TRAIN_TARGET"));
+        trainTargetMeasurementRoutine.setRoutine(massGainRoutine);
+        trainTargetMeasurementRoutine.setMeasurementOperationType(Measurement.MeasurementOperationType.EQUALS);
+        trainTargetMeasurementRoutine.setValueStart("Набрать Вес");
+        genericRepository.save(trainTargetMeasurementRoutine);
+
+        final RoutineMeasurement heightRoutineMeasurement = new RoutineMeasurement();
+        heightRoutineMeasurement.setMeasurementUnit(measurementUnitRepository.findByName("HEIGHT"));
+        heightRoutineMeasurement.setRoutine(massGainRoutine);
+        heightRoutineMeasurement.setMeasurementOperationType(Measurement.MeasurementOperationType.GT);
+        heightRoutineMeasurement.setValueStart("120");
+        genericRepository.save(heightRoutineMeasurement);
+
+        final RoutineMeasurement weightRoutineMeasurement = new RoutineMeasurement();
+        weightRoutineMeasurement.setMeasurementUnit(measurementUnitRepository.findByName("WEIGHT"));
+        weightRoutineMeasurement.setRoutine(massGainRoutine);
+        weightRoutineMeasurement.setMeasurementOperationType(Measurement.MeasurementOperationType.EQUALS);
+        weightRoutineMeasurement.setValueStart("65");
+        weightRoutineMeasurement.setValueEnd("120");
+
+        genericRepository.save(weightRoutineMeasurement);
+
+        return massGainRoutine;
     }
 
     private void createMeasurementUnits() {
@@ -80,22 +153,22 @@ public class QuestionnariesDataCreator implements DataCreator {
     }
 
     private void createIntroductionSurveyQuestions() {
-        of("Привет.",
-                "Я твой персональный тренер.",
-                "Теперь твоя форма это моя забота.",
-                "Мы с тобой составим индивидуальную для тебя программу и выведем твои тренировки на новый уровень.",
-                "Немного обо мне",
-                "я имею способность к развитию и совершенствованию.",
-                "Это значит что чем больше мы с тобой комуницируем, тем более индивидуальным я становлюсь.",
-                "И так начнем",
-                "Для того чтобы составить план наших с тобой занятий мне необходимо немного узнать о тебе")
-                .forEach(introductionQuestion -> {
-                    final Question question1 = new Question();
-                    question1.setQuestion(introductionQuestion);
-                    question1.setQuestionRequired(false);
-                    question1.setAnswerRequired(false);
-                    genericRepository.save(question1);
-                });
+//        of("Привет.",
+//                "Я твой персональный тренер.",
+//                "Теперь твоя форма это моя забота.",
+//                "Мы с тобой составим индивидуальную для тебя программу и выведем твои тренировки на новый уровень.",
+//                "Немного обо мне",
+//                "я имею способность к развитию и совершенствованию.",
+//                "Это значит что чем больше мы с тобой комуницируем, тем более индивидуальным я становлюсь.",
+//                "И так начнем",
+//                "Для того чтобы составить план наших с тобой занятий мне необходимо немного узнать о тебе")
+//                .forEach(introductionQuestion -> {
+//                    final Question question1 = new Question();
+//                    question1.setQuestion(introductionQuestion);
+//                    question1.setQuestionRequired(false);
+//                    question1.setAnswerRequired(false);
+//                    genericRepository.save(question1);
+//                });
 
         final Question heightQuestion = new Question();
         heightQuestion.setQuestion("1. Какой у тебя рост ?");
@@ -115,86 +188,17 @@ public class QuestionnariesDataCreator implements DataCreator {
         trainTargetOptionGroup.setName("Targets");
         of("Набрать Вес", "Похудеть").forEach(og -> {
             final Option option = new Option();
-            option.setOptionGroup(trainTargetOptionGroup);
+//            option.setOptionGroup(trainTargetOptionGroup);
             option.setValue(og);
             trainTargetOptionGroup.getOptions().add(option);
             genericRepository.save(option);
         });
+        trainTarget.setOptionGroup(trainTargetOptionGroup);
+        genericRepository.save(trainTarget);
         genericRepository.save(trainTargetOptionGroup);
         genericRepository.save(weightQuestion);
 
 
-    }
-
-    private void setUpRoutine() {
-        final Routine routine = new Routine();
-
-        routine.setName("Mass gain program");
-        routine.setName("Program for mass gaining");
-        routine.setRoutineType(Routine.RoutineType.GYM);
-        genericRepository.save(routine);
-
-
-        final ExerciseGroup category = new ExerciseGroup();
-        category.setName("Chest");
-
-        genericRepository.save(category);
-
-        final Exercise ex1 = new Exercise();
-        ex1.setName("Bench Press");
-        ex1.setGroup(category);
-        genericRepository.save(ex1);
-
-        final Exercise ex2 = new Exercise();
-        ex2.setGroup(category);
-        ex2.setName("Pullover");
-        genericRepository.save(ex2);
-
-        final RoutineExercise routineExercise1 = new RoutineExercise();
-        routineExercise1.setCountOfSets(4);
-        routineExercise1.setCountOfRepsPerSet(6);
-        routineExercise1.setExercise(ex1);
-        routineExercise1.setExerciseNo(1);
-        routineExercise1.setIntervalBetweenApproaches(2); // 2 mins
-        routineExercise1.setRoutine(routine);
-
-        final RoutineExercise routineExercise2 = new RoutineExercise();
-        routineExercise2.setCountOfSets(4);
-        routineExercise2.setCountOfRepsPerSet(6);
-        routineExercise2.setExercise(ex2);
-        routineExercise2.setExerciseNo(2);
-        routineExercise2.setIntervalBetweenApproaches(2); // 2 mins
-        routineExercise2.setRoutine(routine);
-
-        genericRepository.save(routineExercise1);
-        genericRepository.save(routineExercise2);
-
-
-        final MeasurementUnit measurementUnit = new MeasurementUnit();
-        measurementUnit.setMeasurementUnitType(MeasurementUnit.MeasurementUnitType.SINGLE);
-        measurementUnit.setName(PLANNED_DESTINATION_WEIGHT_MEASUREMENT_UNIT);
-        genericRepository.save(measurementUnit);
-
-        final MeasurementUnit measurementUnit2 = new MeasurementUnit();
-        measurementUnit2.setMeasurementUnitType(MeasurementUnit.MeasurementUnitType.RANGE);
-        measurementUnit2.setName(COUNT_OF_TRAININS_PER_WEEK_MEASUREMENT_UNIT);
-
-
-        genericRepository.save(measurementUnit2);
-
-
-        final RoutineMeasurement measurement1 = new RoutineMeasurement();
-        measurement1.setRoutine(routine);
-        measurement1.setMeasurementUnit(measurementUnit);
-        measurement1.setValueStart("100");
-        genericRepository.save(measurement1);
-
-        final RoutineMeasurement measurement2 = new RoutineMeasurement();
-        measurement2.setRoutine(routine);
-        measurement2.setMeasurementUnit(measurementUnit2);
-        measurement2.setValueStart("2");
-        measurement2.setValueEnd("5");
-        genericRepository.save(measurement2);
     }
 
 }

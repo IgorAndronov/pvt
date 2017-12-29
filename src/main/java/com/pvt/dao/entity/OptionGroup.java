@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class OptionGroup extends BaseEntity<Long> {
     private String name;
 
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private Collection<Option> options =  new ArrayList<>();
 
 }

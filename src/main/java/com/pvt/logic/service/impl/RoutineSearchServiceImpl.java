@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +39,7 @@ public class RoutineSearchServiceImpl implements RoutineSearchService {
         final List<String> measurementUnitNames = searchProgramContext.getSurvey()
                 .getAnswers()
                 .stream()
+                .filter(item->item.getAnswer()!=null)
                 .map(Answer::getMeasurement)
                 .map(Measurement::getMeasurementUnit)
                 .map(MeasurementUnit::getName)

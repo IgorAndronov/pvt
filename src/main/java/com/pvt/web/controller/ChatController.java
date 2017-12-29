@@ -38,23 +38,10 @@ public class ChatController {
     String getPvtAnswer(@RequestBody String params, HttpServletRequest req){
         final String userName = "Fresher";
         final DialogState state = CentralAI.StateHolder.INSTANCE.getState("Fresher");
-        final Question question = state.getCurrentQuestion();
-
-        state.getUserSurvey().getAnswers().add(createAnswer(question,userName,params));
+        state.addAnswer(params);
         return "{\"name\":\"hello\"}";
 
     }
 
-    private Answer createAnswer(Question question, String userName,String value) {
-        final Answer answer = new Answer();
-        answer.setQuestion(question);
-        final Measurement measurement  = new Measurement();
-        measurement.setMeasurementOperationType(Measurement.MeasurementOperationType.EQUALS);
-        measurement.setMeasurementUnit(question.getMeasurementUnit());
-        measurement.setValueStart(value);
-        measurement.setValueEnd(value);
-
-        return answer;
-    }
 
 }

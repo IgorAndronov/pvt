@@ -85,50 +85,51 @@ public class ChatAnnotation {
                 connections.put(this.nickname, this);
                 return;
             }
-            logger.info("Command = " + message);
-            switch (message) {
-                case "#continue": {
+
+            switch (message){
+                case "#answerRequired":{
+                    handleAnswerRequired();
+                    break;
+                }
+                case "#ready":{
+                    handleReady(centralAI);
+                    break;
+                }
+                case "#continue":{
                     CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
                     System.out.println("continue with existing user");
                     break;
                 }
-                case "#ready": {
-                    Thread.sleep(2000);
-                    boolean newThread = true;
-                    for (Thread thread : Thread.getAllStackTraces().keySet()) {
-                        if (thread.getName().startsWith(nickname)) {
-                            CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
-                            CentralAI.StateHolder.INSTANCE.getState(nickname).setAfterResume(true);
-                            newThread = false;
-                        }
-                    }
-                    if (newThread) {
-                        new Thread(nickname + System.currentTimeMillis()) {
-                            public void run() {
-                                System.out.println("!!! Thread= " + Thread.currentThread());
-                                centralAI.doSomeWork();
-                            }
-                        }.start();
-                    }
-                    break;
-                }
-                case "#answerRequired": {
-                    handleAnswerRequired(message);
-                    break;
-                }
-
             }
-
-
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.error(e.getMessage(),e);
 
         }
 
     }
 
-    private void handleAnswerRequired(String message) {
+    private void handleAnswerRequired() {
         CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(false);
+    }
+
+    private void handleReady(final CentralAI centralAI) throws InterruptedException {
+        Thread.sleep(2000);
+        boolean newThread = true;
+        for (Thread thread : Thread.getAllStackTraces().keySet()) {
+            if (thread.getName().startsWith(nickname)) {
+                CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
+                CentralAI.StateHolder.INSTANCE.getState(nickname).setAfterResume(true);
+                newThread = false;
+            }
+        }
+        if (newThread) {
+            new Thread(nickname + System.currentTimeMillis()) {
+                public void run() {
+                    System.out.println("!!! Thread= " + Thread.currentThread());
+                    centralAI.doSomeWork();
+                }
+            }.start();
+        }
     }
 
 

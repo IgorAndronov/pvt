@@ -50,7 +50,7 @@ public class Question extends BaseEntity<Long> {
     private Question parent;
 
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     private Collection<Question> children = new ArrayList<>();
 
 

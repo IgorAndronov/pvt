@@ -1,6 +1,7 @@
 package com.pvt.logic.service;
 
 
+import com.pvt.AbstractDbTest;
 import com.pvt.config.AppConfig;
 import com.pvt.dao.entity.Answer;
 import com.pvt.dao.entity.Exercise;
@@ -40,9 +41,8 @@ import java.util.stream.StreamSupport;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = AppConfig.class)
-public class RoutineServiceTest {
+
+public class RoutineServiceTest extends AbstractDbTest  {
 
     public static final String PLANNED_DESTINATION_WEIGHT_MEASUREMENT_UNIT = "PLANNED_DESTINATION_WEIGHT";
 

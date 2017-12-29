@@ -1,6 +1,7 @@
 package com.pvt.web.websocket.chat;
 
 
+import com.google.gson.Gson;
 import com.pvt.dao.entity.Question;
 
 import javax.json.Json;
@@ -13,13 +14,7 @@ public class QuestionEncoder implements Encoder.Text<Question> {
 
     @Override
     public String encode(Question question) throws EncodeException {
-        return Json.createObjectBuilder()
-                .add("id", Objects.toString(question.getId()))
-                .add("text", question.getQuestion())
-                .add("answerRequired",question.isAnswerRequired())
-                .add("questionRequired",question.isQuestionRequired())
-                .add("inputType",question.getQuestionInputType().name())
-                .build().toString();
+        return new Gson().toJson(question);
     }
 
     @Override

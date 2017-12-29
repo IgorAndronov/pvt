@@ -1,5 +1,7 @@
 package com.pvt.logic.logic.core;
 
+import com.pvt.dao.entity.Answer;
+import com.pvt.dao.entity.Measurement;
 import com.pvt.dao.entity.Question;
 import com.pvt.dao.interfaces.user.UserService;
 import com.pvt.logic.service.QuestionarieService;
@@ -39,10 +41,6 @@ public class CentralAI {
             dialogStates.computeIfAbsent(userName,(k)->new DialogState(true,false));
             return dialogStates.get(userName);
         }
-
-        public void setState(String userName,DialogState state){
-            dialogStates.put(userName, state);
-        }
     }
 
 
@@ -70,7 +68,7 @@ public class CentralAI {
                     i = lastAnchorIndex + 1;
                     state.setAfterResume(false);
                 }
-                final Question currentQuestion = questions.get(i);
+                final Question currentQuestion = questions.get(i >= questions.size() ? questions.size() : i);
                 log.info("!!! next message = " + currentQuestion.getQuestion());
 
 

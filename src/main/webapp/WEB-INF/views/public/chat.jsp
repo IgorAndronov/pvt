@@ -27,7 +27,7 @@
                         </div>
                         <button ng-click="sendDataAjax()" class="btn btn-xs" style="float: right; margin-bottom: 30px">send</button>
                         <div class="form-group">
-                            <textarea id="answerTextArea" class="form-control" rows="5" >{{chatPvtData}}</textarea>
+                            <textarea class="form-control" rows="5" >{{chatPvtData}}</textarea>
                         </div>
 
                     </div>
@@ -91,8 +91,9 @@
 
             }).then(function mySucces(response) {
                 $scope.chatPvtData += response.data.name +"\n";
+                $scope.chat.socket.send("#continue");
                 $scope.chat.socket.send("#ready");
-                document.getElementById('answerTextArea').value='';
+
 
             }, function myError(response) {
                 $scope.chatPvtData = response.statusText;
@@ -124,9 +125,9 @@
         $scope.output = {};
         $scope.output.show = (function(qJson) {
             var question = JSON.parse(qJson);
-            var qId = question.id;
-            var message = question.text;
+            var message = question.question;
             var isAnswerRequired = question.answerRequired;
+            var questionInputType = question.questionInputType;
             var outputblock = document.getElementById('console');
             if(message=="typing"){
                 return;
@@ -149,15 +150,28 @@
             window.speechSynthesis.speak(utterance);
 
             console.info(message);
-            if(message.startsWith("\n") || isAnswerRequired){
+            if(message.startsWith("\n")){
                 var p = document.createElement('p');
                 outputblock.appendChild(p);
             }
 
             var span = document.createElement('span');
             span.style.wordWrap = 'break-word';
-            span.innerHTML = message;
+            span.innerHTML = (isAnswerRequired ? "\n" : "")+message;
+
             outputblock.appendChild(span);
+            switch (questionInputType){
+                case "SELECT":{
+                    var span = document.createElement('span');
+                    span.style.wordWrap = 'break-word';
+                    span.innerHTML = "Варианты:";
+                    outputblock.appendChild(span);
+                    var optionGroup = question.optionGroup;
+                    if(optionGroup){
+                        showAvailableOptions(optionGroup);
+                    }
+                }
+            }
             while (outputblock.childNodes.length > 25) {
                 outputblock.removeChild(outputblock.firstChild);
             }
@@ -222,6 +236,24 @@
         documentReady=true;
 
     });
+
+
+    function showAvailableOptions(optionGroup){
+        var span = document.createElement('span');
+        span.style.wordWrap = 'break-word';
+        var options = optionGroup.options;
+        if(options){
+            var ul = document.createElement("ul");
+            options.forEach(function(item){
+                var li = document.createElement("li");
+
+                li.innerHTML = item.value;
+                ul.appendChild(li);
+            });
+            span.appendChild(ul);
+        }
+        document.getElementById('console').appendChild(span);
+    }
 
 
 

@@ -1,14 +1,15 @@
 package com.pvt.dao.repository;
 
 
-import com.pvt.dao.entity.ExternalUser;
 import com.pvt.dao.entity.Survey;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
+@Repository
 public interface SurveyRepository extends CrudRepository<Survey, Long> {
 
-    List<Survey> findByUser(ExternalUser user);
+    Survey findByName(String name);
 
 }

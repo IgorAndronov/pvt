@@ -1,91 +1,107 @@
 package com.pvt.logic.logic.core;
 
+import com.pvt.dao.entity.Answer;
+import com.pvt.dao.entity.Measurement;
+import com.pvt.dao.entity.Question;
 import com.pvt.dao.interfaces.user.UserService;
+import com.pvt.logic.service.QuestionarieService;
 import com.pvt.web.websocket.chat.ChatAnnotation;
+import lombok.extern.log4j.Log4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.pvt.dao.entity.Question.createAnswerNotRequired;
 
 /**
  * Created by admin on 13.05.2017.
  */
 
 @Component(value = "CentralAI")
+@Log4j
 public class CentralAI {
 
     @Resource(name = "UserServiceImpl")
     private UserService userService;
 
-    public static Map<String, DialogState> dialogStates = new ConcurrentHashMap<>();
+    @Autowired
+    private QuestionarieService questionarieService;
 
-   public  void doSomeWork()  {
-      String[] messages = userService.getIntroMessage("").split("[\\#]");
-       dialogStates.put("Fresher",new DialogState(true,false));
 
-       try {
-           ChatAnnotation connection = ChatAnnotation.getConnections().get("Fresher");
-           if(connection==null){
-               return;
-           }
+    public enum StateHolder {
 
-           for(int i =0; i<messages.length; i++){
+        INSTANCE;
+        private Map<String, DialogState> dialogStates = new ConcurrentHashMap<>();
+
+        public DialogState getState(String userName){
+            dialogStates.computeIfAbsent(userName,(k)->new DialogState(true,false));
+            return dialogStates.get(userName);
+        }
+    }
+
+
+
+    public void doSomeWork() {
+        final List<Question> questions = questionarieService.getIntroductionSurveyQuestions();
+
+        try {
+            ChatAnnotation connection = ChatAnnotation.getConnections().get("Fresher");
+            if (connection == null) {
+                return;
+            }
+            final DialogState state = StateHolder.INSTANCE.getState(connection.getNickname());
+
+            for (int i = 0; i < questions.size(); i++) {
                 Thread.currentThread().sleep(700);
-                System.out.println("!!! continue");
+                log.info("!!! continue");
 
-                if(dialogStates.get(connection.getNickname()).getAfterResume()){
-                    sendAndWait("Вижу ты снова вернулся. ", connection);
-                    sendAndWait("Хорошо, тогда продолжим. ",connection);
-                    sendAndWait("Напомню, на чем мы остановились:",connection);
+                if (state.getAfterResume()) {
+                    sendAndWait(createAnswerNotRequired("Вижу ты снова вернулся. "), connection);
+                    sendAndWait(createAnswerNotRequired("Хорошо, тогда продолжим. "), connection);
+                    sendAndWait(createAnswerNotRequired("Напомню, на чем мы остановились:"), connection);
 
-                    int lastAnchorIndex = dialogStates.get(connection.getNickname()).getLastAnchorBeforeResume();
-                    i=lastAnchorIndex+1;
-                    dialogStates.get(connection.getNickname()).setAfterResume(false);
+                    int lastAnchorIndex = state.getLastAnchorBeforeResume();
+                    i = lastAnchorIndex + 1;
+                    state.setAfterResume(false);
                 }
-
-                System.out.println("!!! next message = " +messages[i]);
-                if(messages[i].equals("@@")){
-                       addLastAnchor(connection.getNickname(),i);
-                       messages[i]="";
-                }
-                if(messages[i].equals("")){
-                       dialogStates.get(connection.getNickname()).setCanContinue(true);
-                       continue;
-                }
+                final Question currentQuestion = questions.get(i >= questions.size() ? questions.size() : i);
+                log.info("!!! next message = " + currentQuestion.getQuestion());
 
 
-               sendAndWait(messages[i],connection);
+                addLastAnchor(connection.getNickname(), currentQuestion, i);
+                sendAndWait(currentQuestion, connection);
 
             }
 
 
-
-       }catch (Exception e){
-
-       }
+        } catch (Exception e) {
+            log.error(e.getMessage(),e);
+        }
 
     }
 
-   private void addLastAnchor(String nickname, int index){
-       dialogStates.get(nickname).setLastAnchorBeforeResume(index);
+    private void addLastAnchor(String nickname, Question currentQuestion, int index) {
+        StateHolder.INSTANCE.getState(nickname).setLastAnchorBeforeResume(index);
+        StateHolder.INSTANCE.getState(nickname).setCurrentQuestion(currentQuestion);
 
-   }
+    }
 
-   private void sendAndWait(String message, ChatAnnotation connection){
-       System.out.println("sending..."+message);
-       ChatAnnotation.broadcast(message);
-       dialogStates.get(connection.getNickname()).setCanContinue(false);
-       try {
-           while(!dialogStates.get(connection.getNickname()).getCanContinue()){
-               Thread.currentThread().sleep(200);
-             //  System.out.println(connection.getNickname() + " "+ dialogStates.get(connection.getNickname()).getCanContinue());
-           }
-       }catch (Exception e){
+    private void sendAndWait(Question question, ChatAnnotation connection) {
+        System.out.println("sending..." + question.getQuestion());
+        ChatAnnotation.broadcast(question);
+        StateHolder.INSTANCE.getState(connection.getNickname()).setCanContinue(false);
+        try {
+            while (!StateHolder.INSTANCE.getState(connection.getNickname()).getCanContinue()) {
+                Thread.currentThread().sleep(200);
+                //  System.out.println(connection.getNickname() + " "+ dialogStates.get(connection.getNickname()).getCanContinue());
+            }
+        } catch (Exception e) {
 
-       }
+        }
 
-   }
+    }
 }

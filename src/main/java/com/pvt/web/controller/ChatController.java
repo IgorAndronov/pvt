@@ -1,5 +1,10 @@
 package com.pvt.web.controller;
 
+import com.pvt.dao.entity.Answer;
+import com.pvt.dao.entity.Measurement;
+import com.pvt.dao.entity.Question;
+import com.pvt.logic.logic.core.CentralAI;
+import com.pvt.logic.logic.core.DialogState;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -31,9 +36,12 @@ public class ChatController {
     @RequestMapping(value = "/getPvtAnswer", method = RequestMethod.POST)
     public @ResponseBody
     String getPvtAnswer(@RequestBody String params, HttpServletRequest req){
-        System.out.println("!!!"+params);
+        final String userName = "Fresher";
+        final DialogState state = CentralAI.StateHolder.INSTANCE.getState("Fresher");
+        state.addAnswer(params);
         return "{\"name\":\"hello\"}";
 
     }
+
 
 }

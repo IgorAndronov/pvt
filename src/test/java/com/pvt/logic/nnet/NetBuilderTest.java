@@ -28,12 +28,13 @@ public class NetBuilderTest {
         List<RealMatrix> matrixWList =  netBuilder.build(inputNumber, outputNumber,intermidiateLevelsNumber,neuronsPerlayer);
 
         RealMatrix matrixI=netBuilder.buildMatrix(inputNumber,COLUMN_SIZE_ONE);
-        matrixI.setEntry(0,0,0.5);
+        matrixI.setEntry(0,0,0.91);
 
         RealMatrix expectedResults = netBuilder.buildMatrix(outputNumber,COLUMN_SIZE_ONE);
-        expectedResults.setEntry(0,0,0.34);
+        expectedResults.setEntry(0,0,0.0995);
+        RealMatrix acualFinalResults = netBuilder.calcLevelOutput(matrixI ,matrixWList,maxLayerIndex);
         RealMatrix inputDeltaRates = netBuilder.buildMatrix(outputNumber,COLUMN_SIZE_ONE);
-        inputDeltaRates.setEntry(0,0, 0.52591);
+        inputDeltaRates.setEntry(0,0, expectedResults.getEntry(0,0)/acualFinalResults.getEntry(0,0));
 
         for(int currentLayerIndex=maxLayerIndex; currentLayerIndex>0; currentLayerIndex--){
             int neuronsPerLayer = matrixWList.get(currentLayerIndex-1).getRowDimension();

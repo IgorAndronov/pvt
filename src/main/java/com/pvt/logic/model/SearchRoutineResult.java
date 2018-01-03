@@ -12,4 +12,11 @@ public class SearchRoutineResult {
 
     private Collection<Routine> routines = new ArrayList<>();
 
+
+    public void addRoutine(Routine routine){
+        if(!routines.contains(routine)){
+            this.routines.add(routine);
+        }
+    }
+
 }

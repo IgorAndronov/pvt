@@ -88,7 +88,7 @@ public class FindRoutineTest extends AbstractDbTest {
         final SearchRoutineResult searchRoutineResult = routineSearchService.search(SearchRoutineContext.of(state.getUserSurvey()));
 
         assertNotNull(searchRoutineResult.getRoutines());
-        assertEquals(1,searchRoutineResult.getRoutines().size());
+        assertEquals(2,searchRoutineResult.getRoutines().size());
         assertEquals(searchRoutineResult.getRoutines().iterator().next().getName(),"Программа набора мышечной массы");
 
     }

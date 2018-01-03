@@ -153,34 +153,24 @@ public class QuestionnariesDataCreator implements DataCreator {
     }
 
     private void createIntroductionSurveyQuestions() {
-//        of("Привет.",
-//                "Я твой персональный тренер.",
-//                "Теперь твоя форма это моя забота.",
-//                "Мы с тобой составим индивидуальную для тебя программу и выведем твои тренировки на новый уровень.",
-//                "Немного обо мне",
-//                "я имею способность к развитию и совершенствованию.",
-//                "Это значит что чем больше мы с тобой комуницируем, тем более индивидуальным я становлюсь.",
-//                "И так начнем",
-//                "Для того чтобы составить план наших с тобой занятий мне необходимо немного узнать о тебе")
-//                .forEach(introductionQuestion -> {
-//                    final Question question1 = new Question();
-//                    question1.setQuestion(introductionQuestion);
-//                    question1.setQuestionRequired(false);
-//                    question1.setAnswerRequired(false);
-//                    genericRepository.save(question1);
-//                });
-
-        final Question heightQuestion = new Question();
-        heightQuestion.setQuestion("1. Какой у тебя рост ?");
-        heightQuestion.setMeasurementUnit(measurementUnitRepository.findByName("HEIGHT"));
-        genericRepository.save(heightQuestion);
-        final Question weightQuestion = new Question();
-        weightQuestion.setQuestion("2. Какой у тебя вес ?");
-        weightQuestion.setMeasurementUnit(measurementUnitRepository.findByName("WEIGHT"));
-        genericRepository.save(weightQuestion);
-
+        of("Привет.",
+                "Я твой персональный тренер.",
+                "Теперь твоя форма это моя забота.",
+                "Мы с тобой составим индивидуальную для тебя программу и выведем твои тренировки на новый уровень.",
+                "Немного обо мне",
+                "я имею способность к развитию и совершенствованию.",
+                "Это значит что чем больше мы с тобой комуницируем, тем более индивидуальным я становлюсь.",
+                "И так начнем",
+                "Для того чтобы составить план наших с тобой занятий мне необходимо немного узнать о тебе")
+                .forEach(introductionQuestion -> {
+                    final Question question1 = new Question();
+                    question1.setQuestion(introductionQuestion);
+                    question1.setQuestionRequired(false);
+                    question1.setAnswerRequired(false);
+                    genericRepository.save(question1);
+                });
         final Question trainTarget = new Question();
-        trainTarget.setQuestion("3. Какая ваша цель занятия в зале");
+        trainTarget.setQuestion("1. Какая ваша цель занятия в зале");
         trainTarget.setMeasurementUnit(measurementUnitRepository.findByName("TRAIN_TARGET"));
         trainTarget.setQuestionInputType(QuestionInputType.SELECT);
         final OptionGroup trainTargetOptionGroup = new OptionGroup();
@@ -196,6 +186,17 @@ public class QuestionnariesDataCreator implements DataCreator {
         trainTarget.setOptionGroup(trainTargetOptionGroup);
         genericRepository.save(trainTarget);
         genericRepository.save(trainTargetOptionGroup);
+        final Question heightQuestion = new Question();
+        heightQuestion.setQuestion("2. Какой у тебя рост ?");
+        heightQuestion.setMeasurementUnit(measurementUnitRepository.findByName("HEIGHT"));
+        genericRepository.save(heightQuestion);
+        final Question weightQuestion = new Question();
+        weightQuestion.setQuestion("3. Какой у тебя вес ?");
+        weightQuestion.setMeasurementUnit(measurementUnitRepository.findByName("WEIGHT"));
+        weightQuestion.setLast(true);
+        genericRepository.save(weightQuestion);
+
+
         genericRepository.save(weightQuestion);
 
 

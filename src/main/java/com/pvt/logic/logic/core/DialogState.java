@@ -17,6 +17,8 @@ public class DialogState {
 
     int lastAnchorBeforeResume = 0;
 
+    private boolean isLast ;
+
     private Question currentQuestion;
 
     private UserSurvey userSurvey = new UserSurvey();

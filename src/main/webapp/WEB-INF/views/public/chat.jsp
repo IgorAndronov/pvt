@@ -92,8 +92,6 @@
             }).then(function mySucces(response) {
                 $scope.chatPvtData += response.data.name +"\n";
                 $scope.chat.socket.send("#continue");
-                $scope.chat.socket.send("#ready");
-
 
             }, function myError(response) {
                 $scope.chatPvtData = response.statusText;
@@ -128,6 +126,7 @@
             var message = question.question;
             var isAnswerRequired = question.answerRequired;
             var questionInputType = question.questionInputType;
+            var isLast = question.last;
             var outputblock = document.getElementById('console');
             if(message=="typing"){
                 return;
@@ -139,12 +138,15 @@
             var voices = window.speechSynthesis.getVoices();
             utterance.voice = voices.filter(function(voice) { return voice.lang == 'ru-RU'; })[0];
             utterance.onend = function(e) {
-                if(isAnswerRequired){
+                if(isAnswerRequired && !isLast){
                     console.info("Awaiting answer");
                     $scope.chat.socket.send("#answerRequired");
-                }else {
-                    console.info("send #continue");
-                    $scope.chat.socket.send("#continue");
+                }else if(isLast) {
+                    $scope.chat.socket.send("#last");
+                } else {
+                        console.info("send #continue");
+                        $scope.chat.socket.send("#continue");
+
                 }
             };
             window.speechSynthesis.speak(utterance);
@@ -157,14 +159,14 @@
 
             var span = document.createElement('span');
             span.style.wordWrap = 'break-word';
-            span.innerHTML = (isAnswerRequired ? "\n" : "")+message;
+            span.innerHTML = (isAnswerRequired ? "<br/>" : "")+message;
 
             outputblock.appendChild(span);
             switch (questionInputType){
                 case "SELECT":{
                     var span = document.createElement('span');
                     span.style.wordWrap = 'break-word';
-                    span.innerHTML = "Варианты:";
+                    span.innerHTML = +"<br/>"+"Варианты:";
                     outputblock.appendChild(span);
                     var optionGroup = question.optionGroup;
                     if(optionGroup){

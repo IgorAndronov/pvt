@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.Float.NaN;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -42,6 +43,9 @@ public class NetBuilder  {
             for(int outputNeuronIndex=0; outputNeuronIndex<neuronsPerLayer; outputNeuronIndex++){
                 RealMatrix prevLevelOutput = calcLevelOutput(matrixI ,matrixWList,currentLayerIndex-1);
                 RealMatrix incomingW = matrixWList.get(currentLayerIndex-1);
+                if(expectedResults.getEntry(outputNeuronIndex,COLUMN_INDEX_ZERO)!=expectedResults.getEntry(outputNeuronIndex,COLUMN_INDEX_ZERO)){
+                    System.out.println("Error NaN!!!");
+                }
                 RealMatrix independentAdjustments = calcAdjustmentsPerOutputNeuron(prevLevelOutput,
                         incomingW,
                         expectedResults.getEntry(outputNeuronIndex,COLUMN_INDEX_ZERO),
@@ -57,7 +61,15 @@ public class NetBuilder  {
                     int columnToAjustIndex= j==0? 0:j-1;
                     RealMatrix prevOutputsW = adjustSingleWValue (matrixWList,currentLayerIndex-1,outputNeuronIndex,columnToAjustIndex, k);
                     double newExpectedResult = calcLevelOutput(matrixI ,matrixWList,currentLayerIndex).getEntry(outputNeuronIndex,COLUMN_INDEX_ZERO)*spreadedOutputRates.getEntry(j,COLUMN_INDEX_ZERO);
+                    if(newExpectedResult!=newExpectedResult){
+                        System.out.println("Error NaN!!!");
+                    }
+                    newExpectedResult = calcLevelOutput(matrixI ,matrixWList,currentLayerIndex).getEntry(outputNeuronIndex,COLUMN_INDEX_ZERO)*spreadedOutputRates.getEntry(j,COLUMN_INDEX_ZERO);
+
                     k=  calculateSingleIncomingDeltaRate(prevOutputsValues, j,prevOutputsW,newExpectedResult,outputNeuronIndex);
+                    if(k!=k){
+                        System.out.println("Error NaN!!!");
+                    }
                     kArray[j]=k;
                 }
 
@@ -66,7 +78,7 @@ public class NetBuilder  {
 
             }
 
-            inputDeltaRates = spreadRatesBetweenInputsandWeights(tmpInputDeltaRates,tmpWDeltaRates,matrixWList,currentLayerIndex, matrixI, currentLayerIndex);
+            inputDeltaRates = spreadRatesBetweenInputsandWeights(tmpInputDeltaRates,tmpWDeltaRates,matrixWList,currentLayerIndex, matrixI, currentLayerIndex, LEARNING_SPEED_RATE);
 
 
         }
@@ -80,19 +92,19 @@ public class NetBuilder  {
 
         RealMatrix matrixDataWI =buildMatrix(neuronsPerlayerNumber,inputsNumber);
         //initWITest(matrixDataWI);
-        initValues(matrixDataWI);
+        initValues(matrixDataWI, false);
         matricesW.add(matrixDataWI);
 
         for(int i=0; i<inermidiateLevelsNumber-1;i++){
             RealMatrix matrixW = buildMatrix(neuronsPerlayerNumber,neuronsPerlayerNumber);
            // initW32Test(matrixW);
-            initValues(matrixW);
+            initValues(matrixW,false);
             matricesW.add(matrixW);
         }
 
         RealMatrix matrixDataWO =buildMatrix(outputNumbers,neuronsPerlayerNumber);
        // initWOTest(matrixDataWO);
-        initValues(matrixDataWO);
+        initValues(matrixDataWO,false);
         matricesW.add(matrixDataWO);
 
         return matricesW;
@@ -130,6 +142,9 @@ public class NetBuilder  {
 
         for(int i=0; i<prevLevelOutput.getRowDimension();i++){
            kResults[i][0]=calculateSingleIncomingDeltaRate(prevLevelOutput, i, incomingW,expectedResult,outputNeuronIndex);
+           if( kResults[i][0]!=kResults[i][0] || Double.isInfinite(kResults[i][0]) || !Double.isFinite(kResults[i][0])){
+               System.out.println("!!!Error NaN");
+           }
         }
 
         return  MatrixUtils.createRealMatrix(kResults);
@@ -145,7 +160,11 @@ public class NetBuilder  {
         if(m<0 || c<0 ||a<0){
             System.out.println("Error logarifm!!!");
         }
-        return Math.log(m)/Math.log(c);
+        double result =  Math.log(m)/Math.log(c);
+        if(Double.isInfinite(result)){
+            result=1;
+        }
+        return result;
 
     }
 
@@ -166,6 +185,9 @@ public class NetBuilder  {
                double p = Math.abs((kMax/standaloneAdjustmentsPerOutputNeuron.getEntry(i,COLUMN_INDEX_ZERO))*x);
                p = outputDeltaRatio>1?p:-p;
                spreadedOutputRates[i][0]=(prevVal+p)/prevVal;
+               if(spreadedOutputRates[i][0]!=spreadedOutputRates[i][0]){
+                   System.out.println("Error!!! NaN");
+               }
                prevVal=prevVal+p;
            }
 
@@ -238,7 +260,7 @@ public class NetBuilder  {
     }
 
 
-    public RealMatrix spreadRatesBetweenInputsandWeights(RealMatrix tmpWinputRates, RealMatrix tmpWwRates,List<RealMatrix> matrixWList, int currentLevelIndex, RealMatrix matrixI, int currentLayerIndex){
+    public RealMatrix spreadRatesBetweenInputsandWeights(RealMatrix tmpWinputRates, RealMatrix tmpWwRates,List<RealMatrix> matrixWList, int currentLevelIndex, RealMatrix matrixI, int currentLayerIndex, double leringSpeedRate){
 
         int incomeLayerIndex = currentLevelIndex-1;
 
@@ -323,10 +345,15 @@ public class NetBuilder  {
       return  MatrixUtils.createRealMatrix(new double[rowNumber][columnNumber]);
     }
 
-    private void initValues(RealMatrix matrixW) {
+    private void initValues(RealMatrix matrixW, boolean inputMatrix) {
         for(int rowIndex=0;rowIndex<matrixW.getRowDimension();rowIndex++){
             for(int columnIndex=0;columnIndex<matrixW.getColumnDimension();columnIndex++ ){
-                matrixW.setEntry(rowIndex,columnIndex,0.4*Math.random()+0.3);  //initial range from 0.3 to 0.7
+                if(inputMatrix){
+                    matrixW.setEntry(rowIndex,columnIndex,1);  //initial range from 0.3 to 0.7
+                }else{
+                    matrixW.setEntry(rowIndex,columnIndex,Math.random()-0.5);  //initial range from -0.5 to 0.5
+                }
+
             }
         }
     }

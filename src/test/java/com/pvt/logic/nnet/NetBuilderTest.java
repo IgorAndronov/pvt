@@ -23,8 +23,8 @@ public class NetBuilderTest {
     public void buildTest(){
         int inputNumber = 1;
         int outputNumber = 1;
-        int intermidiateLevelsNumber = 5;
-        int neuronsPerlayer =5;
+        int intermidiateLevelsNumber = 10;
+        int neuronsPerlayer =30;
 
         NetBuilder netBuilder = new NetBuilder();
         List<RealMatrix> matrixWList =  netBuilder.build(inputNumber, outputNumber,intermidiateLevelsNumber,neuronsPerlayer);
@@ -45,6 +45,9 @@ public class NetBuilderTest {
                 netBuilder.trainNetwork(matrixWList,matrixI,expectedResults);
 
                 RealMatrix receivedResult = netBuilder.calcLevelOutput(matrixI ,matrixWList, matrixWList.size());
+                if(receivedResult.getEntry(0,0)!=receivedResult.getEntry(0,0)){
+                    System.out.println("Error logarifm NaN!!!");
+                }
                 System.out.println("\nInput data = "+matrixI.getEntry(0,0)+
                         "\nExpected data = "+expectedResults.getEntry(0,0)+
                         "\nReceived result = "+ receivedResult.getEntry(0,0)+
@@ -59,9 +62,9 @@ public class NetBuilderTest {
         double result=0;
         int maxLayerIndex = matrixWList.size();
         for(int i = 1;i<10; i++){
-            matrixI.setEntry(0,0,1/i);
+            matrixI.setEntry(0,0,(double)i/10);
             result = netBuilder.calcLevelOutput(matrixI ,matrixWList,maxLayerIndex).getEntry(0,0);
-            System.out.println("\n!!!result = "+result);
+            System.out.println("\n!!! input = "+(double)i/10+" result = "+result);
         }
 
 

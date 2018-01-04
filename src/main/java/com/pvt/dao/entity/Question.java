@@ -45,6 +45,10 @@ public class Question extends BaseEntity<Long> {
     private boolean answerRequired = true;
 
 
+    @Column
+    private boolean last = false;
+
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Question parent;

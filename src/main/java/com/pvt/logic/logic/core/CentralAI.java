@@ -68,12 +68,16 @@ public class CentralAI {
                     i = lastAnchorIndex + 1;
                     state.setAfterResume(false);
                 }
-                final Question currentQuestion = questions.get(i >= questions.size() ? questions.size() : i);
-                log.info("!!! next message = " + currentQuestion.getQuestion());
+                if(!state.isLast()) {
+                    final Question currentQuestion = questions.get(i >= questions.size() ? questions.size() : i);
+                    log.info("!!! next message = " + currentQuestion.getQuestion());
 
 
-                addLastAnchor(connection.getNickname(), currentQuestion, i);
-                sendAndWait(currentQuestion, connection);
+                    addLastAnchor(connection.getNickname(), currentQuestion, i);
+                    sendAndWait(currentQuestion, connection);
+                }else{
+                    sendAndWait(createAnswerNotRequired("Найденная программа "),connection);
+                }
 
             }
 

@@ -95,6 +95,10 @@ public class ChatAnnotation {
                     handleReady(centralAI);
                     break;
                 }
+                case "#last":{
+                    handleLast();
+                    break;
+                }
                 case "#continue":{
                     CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
                     System.out.println("continue with existing user");
@@ -108,6 +112,10 @@ public class ChatAnnotation {
 
     }
 
+    private void handleLast() {
+        CentralAI.StateHolder.INSTANCE.getState(nickname).setLast(true);
+    }
+
     private void handleAnswerRequired() {
         CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(false);
     }
@@ -118,7 +126,7 @@ public class ChatAnnotation {
         for (Thread thread : Thread.getAllStackTraces().keySet()) {
             if (thread.getName().startsWith(nickname)) {
                 CentralAI.StateHolder.INSTANCE.getState(nickname).setCanContinue(true);
-                CentralAI.StateHolder.INSTANCE.getState(nickname).setAfterResume(true);
+//                CentralAI.StateHolder.INSTANCE.getState(nickname).setAfterResume(true);
                 newThread = false;
             }
         }

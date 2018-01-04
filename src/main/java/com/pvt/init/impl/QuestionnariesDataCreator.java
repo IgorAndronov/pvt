@@ -1,8 +1,6 @@
 package com.pvt.init.impl;
 
 
-import com.pvt.dao.entity.Exercise;
-import com.pvt.dao.entity.ExerciseGroup;
 import com.pvt.dao.entity.Measurement;
 import com.pvt.dao.entity.MeasurementUnit;
 import com.pvt.dao.entity.Option;
@@ -10,19 +8,20 @@ import com.pvt.dao.entity.OptionGroup;
 import com.pvt.dao.entity.Question;
 import com.pvt.dao.entity.QuestionInputType;
 import com.pvt.dao.entity.Routine;
-import com.pvt.dao.entity.RoutineExercise;
 import com.pvt.dao.entity.RoutineMeasurement;
 import com.pvt.dao.entity.Survey;
 import com.pvt.dao.repository.GenericRepository;
 import com.pvt.dao.repository.MeasurementUnitRepository;
 import com.pvt.dao.repository.QuestionRepository;
 import com.pvt.init.DataCreator;
+import com.pvt.util.Tuple;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Stream.of;
@@ -64,7 +63,23 @@ public class QuestionnariesDataCreator implements DataCreator {
     private void createRoutines() {
         createMassGainRoutine();
         createLostWeightRoutine();
+        final AtomicInteger counter = new AtomicInteger();
+        of("AGE", "SEX", "TRAIN_TARGET").forEach(unit -> {
+            final RoutineMeasurement rm = new RoutineMeasurement();
+            final Routine routine = new Routine();
 
+            routine.setName("ANOTHER_ROUTINE_" + counter.incrementAndGet());
+            genericRepository.save(routine);
+
+            rm.setMeasurementUnit(measurementUnitRepository.findByName(unit));
+            rm.setRoutine(routine);
+            rm.setMeasurementOperationType(Measurement.MeasurementOperationType.EQUALS);
+            rm.setValueStart(String.valueOf(-1));
+            rm.setValueEnd(String.valueOf(-2));
+
+            genericRepository.save(rm);
+
+        });
     }
 
     private void createLostWeightRoutine() {
@@ -84,16 +99,19 @@ public class QuestionnariesDataCreator implements DataCreator {
         heightRoutineMeasurement.setMeasurementUnit(measurementUnitRepository.findByName("HEIGHT"));
         heightRoutineMeasurement.setRoutine(lostWeightRoutine);
         heightRoutineMeasurement.setMeasurementOperationType(Measurement.MeasurementOperationType.GT);
-        heightRoutineMeasurement.setValueStart("120");
+        heightRoutineMeasurement.setValueStart("-1");
         genericRepository.save(heightRoutineMeasurement);
 
         final RoutineMeasurement weightRoutineMeasurement = new RoutineMeasurement();
         weightRoutineMeasurement.setMeasurementUnit(measurementUnitRepository.findByName("WEIGHT"));
         weightRoutineMeasurement.setRoutine(lostWeightRoutine);
         weightRoutineMeasurement.setMeasurementOperationType(Measurement.MeasurementOperationType.EQUALS);
-        weightRoutineMeasurement.setValueStart("90");
+        weightRoutineMeasurement.setValueStart("110");
         weightRoutineMeasurement.setValueEnd("180");
+
         genericRepository.save(weightRoutineMeasurement);
+
+        genericRepository.save(lostWeightRoutine);
 
     }
 
@@ -117,6 +135,7 @@ public class QuestionnariesDataCreator implements DataCreator {
         heightRoutineMeasurement.setRoutine(massGainRoutine);
         heightRoutineMeasurement.setMeasurementOperationType(Measurement.MeasurementOperationType.GT);
         heightRoutineMeasurement.setValueStart("120");
+
         genericRepository.save(heightRoutineMeasurement);
 
         final RoutineMeasurement weightRoutineMeasurement = new RoutineMeasurement();
@@ -128,13 +147,20 @@ public class QuestionnariesDataCreator implements DataCreator {
 
         genericRepository.save(weightRoutineMeasurement);
 
+        genericRepository.save(massGainRoutine);
+
         return massGainRoutine;
     }
 
     private void createMeasurementUnits() {
-        of("WEIGHT", "HEIGHT", "TRAIN_TARGET").forEach(item -> {
+        of(Tuple.create("WEIGHT",MeasurementUnit.MeasurementUnitType.RANGE),
+                Tuple.create("HEIGHT",MeasurementUnit.MeasurementUnitType.RANGE),
+                Tuple.create("TRAIN_TARGET",MeasurementUnit.MeasurementUnitType.SINGLE),
+                Tuple.create("AGE",MeasurementUnit.MeasurementUnitType.RANGE),
+                Tuple.create("SEX",MeasurementUnit.MeasurementUnitType.SINGLE)).forEach(item -> {
             final MeasurementUnit unit = new MeasurementUnit();
-            unit.setName(item);
+            unit.setName(item.getFirst());
+            unit.setMeasurementUnitType(item.getSecond().get());
 
             measurementUnitRepository.save(unit);
         });
@@ -157,7 +183,7 @@ public class QuestionnariesDataCreator implements DataCreator {
 //                "Я твой персональный тренер.",
 //                "Теперь твоя форма это моя забота.",
 //                "Мы с тобой составим индивидуальную для тебя программу и выведем твои тренировки на новый уровень.",
-//                "Немного обо мне",
+//                "Немного обо мне,",
 //                "я имею способность к развитию и совершенствованию.",
 //                "Это значит что чем больше мы с тобой комуницируем, тем более индивидуальным я становлюсь.",
 //                "И так начнем",

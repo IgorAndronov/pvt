@@ -23,8 +23,8 @@ public class NetBuilderTest {
     public void buildTest(){
         int inputNumber = 1;
         int outputNumber = 1;
-        int intermidiateLevelsNumber = 10;
-        int neuronsPerlayer =30;
+        int intermidiateLevelsNumber =2;
+        int neuronsPerlayer =6;
 
         NetBuilder netBuilder = new NetBuilder();
         List<RealMatrix> matrixWList =  netBuilder.build(inputNumber, outputNumber,intermidiateLevelsNumber,neuronsPerlayer);

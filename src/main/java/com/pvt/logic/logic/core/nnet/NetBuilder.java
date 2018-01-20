@@ -19,7 +19,8 @@ public class NetBuilder  {
     final static int COLUMN_SIZE_ONE = 1;
     final static int COLUMN_INDEX_ZERO = 0;
     final static int ROW_INDEX_ZERO = 0;
-    final static double LEARNING_SPEED_RATE =0.5;
+    final static double ZERO_VALUE = 0.000001;
+    final static double LEARNING_SPEED_RATE =0.1;
 
     static final double DECREASE_RATE_FOR_MAX_POSSIBLE_INPUT_VALUE = 0.93;
 
@@ -157,13 +158,14 @@ public class NetBuilder  {
         double c = Math.exp(prevLevelOutput.getEntry(prevLevelNeuronIndex,COLUMN_INDEX_ZERO)*incomingW.getEntry(outputNeuronIndex,prevLevelNeuronIndex));
         double a = Math.exp(iwSum.getEntry(ROW_INDEX_ZERO,COLUMN_INDEX_ZERO)-prevLevelOutput.getEntry(prevLevelNeuronIndex,COLUMN_INDEX_ZERO)*incomingW.getEntry(outputNeuronIndex,prevLevelNeuronIndex));
         double m = expectedResult/(a*(1-expectedResult));
-        if(m<0 || c<0 ||a<0){
-            System.out.println("Error logarifm!!!");
-        }
+
         double result =  Math.log(m)/Math.log(c);
-        if(Double.isInfinite(result)){
+
+        if(!Double.isFinite(result)){
             result=1;
         }
+
+
         return result;
 
     }
@@ -172,8 +174,10 @@ public class NetBuilder  {
         double[][] spreadedOutputRates = new double[standaloneAdjustmentsPerOutputNeuron.getRowDimension()][1];
        double kMax=getMaxRate(standaloneAdjustmentsPerOutputNeuron);
        double sum = 0;
+       boolean zeroExists = false;
        for(double value:standaloneAdjustmentsPerOutputNeuron.getColumn(COLUMN_INDEX_ZERO)){
            sum += Math.abs(kMax/value);
+           zeroExists = (Math.abs(value)<ZERO_VALUE)?true:zeroExists;
        }
        double x = (outputDeltaRatio-1)/sum;
        double prevVal =1;
@@ -182,13 +186,18 @@ public class NetBuilder  {
                spreadedOutputRates[i][0]=1;
 
            }else{
-               double p = Math.abs((kMax/standaloneAdjustmentsPerOutputNeuron.getEntry(i,COLUMN_INDEX_ZERO))*x);
-               p = outputDeltaRatio>1?p:-p;
-               spreadedOutputRates[i][0]=(prevVal+p)/prevVal;
-               if(spreadedOutputRates[i][0]!=spreadedOutputRates[i][0]){
-                   System.out.println("Error!!! NaN");
+               if(zeroExists){
+                   spreadedOutputRates[i][0]= (Math.abs(standaloneAdjustmentsPerOutputNeuron.getEntry(i,COLUMN_INDEX_ZERO))<ZERO_VALUE)?0:1;
+               }else{
+                   double p = Math.abs((kMax/standaloneAdjustmentsPerOutputNeuron.getEntry(i,COLUMN_INDEX_ZERO))*x);
+                   p = outputDeltaRatio>1?p:-p;
+                   spreadedOutputRates[i][0]=(prevVal+p)/prevVal;
+                   if(spreadedOutputRates[i][0]!=spreadedOutputRates[i][0]){
+                       System.out.println("Error!!! NaN");
+                   }
+                   prevVal=prevVal+p;
                }
-               prevVal=prevVal+p;
+
            }
 
        }
@@ -244,7 +253,7 @@ public class NetBuilder  {
                 if(ik>=maxPossibleIncomeOutputDeltaRate){
                    ik=maxPossibleIncomeOutputDeltaRate;
                    wk = levelDeltaRatesPerIncomeNeuron[i]/ik;
-                }else if(wk>=maxPossibleWDeltaRate){
+                }else if(Math.abs(wk)>=maxPossibleWDeltaRate){
                     wk=levelDeltaRatesPerIncomeNeuron[i]>0? Math.abs(maxPossibleWDeltaRate):-Math.abs(maxPossibleWDeltaRate);
                    ik=levelDeltaRatesPerIncomeNeuron[i]/wk;
 
@@ -254,13 +263,17 @@ public class NetBuilder  {
             tmpInputRates.setEntry(outputNeuronIndex,i, ik);
             tmpWRates.setEntry(outputNeuronIndex,i,wk);
 
+            if(maxPossibleWDeltaRate<Math.abs(wk)){
+                System.out.println("!!!Error wk");
+            }
+
         }
 
 
     }
 
 
-    public RealMatrix spreadRatesBetweenInputsandWeights(RealMatrix tmpWinputRates, RealMatrix tmpWwRates,List<RealMatrix> matrixWList, int currentLevelIndex, RealMatrix matrixI, int currentLayerIndex, double leringSpeedRate){
+    public RealMatrix spreadRatesBetweenInputsandWeights(RealMatrix tmpWinputRates, RealMatrix tmpWwRates,List<RealMatrix> matrixWList, int currentLevelIndex, RealMatrix matrixI, int currentLayerIndex, double lerningSpeedRate){
 
         int incomeLayerIndex = currentLevelIndex-1;
 
@@ -270,26 +283,36 @@ public class NetBuilder  {
 
         double[][] incomeOutputDeltaRates = new double[tmpWinputRates.getColumnDimension()][COLUMN_SIZE_ONE];
 
-        double[] maxWInputRate = new double[tmpWinputRates.getColumnDimension()];
+        double[] minWInputRate = new double[tmpWinputRates.getColumnDimension()];
+        Arrays.fill(minWInputRate,Double.MAX_VALUE);
         for(int inputIndex=0; inputIndex<tmpWinputRates.getColumnDimension(); inputIndex++){
             for(int outputIndex = 0; outputIndex<tmpWinputRates.getRowDimension(); outputIndex++){
-                if(tmpWinputRates.getEntry(outputIndex,inputIndex)>maxWInputRate[inputIndex]){
-                    maxWInputRate[inputIndex]=tmpWinputRates.getEntry(outputIndex,inputIndex);
+                if(tmpWinputRates.getEntry(outputIndex,inputIndex)<minWInputRate[inputIndex]){
+                    minWInputRate[inputIndex]=tmpWinputRates.getEntry(outputIndex,inputIndex);
 
                 }
             }
         }
 
-        for(int i=0; i<maxWInputRate.length;i++){
-            incomeOutputDeltaRates[i][COLUMN_INDEX_ZERO] = maxWInputRate[i];
+        for(int i=0; i<minWInputRate.length;i++){
+            incomeOutputDeltaRates[i][COLUMN_INDEX_ZERO] = minWInputRate[i];
         }
 
 
         for(int outputIndex =0; outputIndex<tmpWwRates.getRowDimension(); outputIndex++){
             for(int inputIndex=0; inputIndex<tmpWwRates.getColumnDimension(); inputIndex++){
-                double wk =tmpWwRates.getEntry(outputIndex,inputIndex)*tmpWinputRates.getEntry(outputIndex,inputIndex)/maxWInputRate[inputIndex];
+                double wk =tmpWwRates.getEntry(outputIndex,inputIndex);
+                double tmpWk =(Math.abs(wk)-1)*lerningSpeedRate+1;
+                wk = wk>0? tmpWk:-tmpWk;
                 adjustSingleWValue(matrixWList,incomeLayerIndex,outputIndex,inputIndex,wk);
             }
+        }
+
+        for(int i=0; i<minWInputRate.length;i++){
+            if(minWInputRate[i]!=minWInputRate[i]){
+                System.out.println("!!!Error NaN");
+            }
+            incomeOutputDeltaRates[i][COLUMN_INDEX_ZERO] = (minWInputRate[i]-1)*lerningSpeedRate+1;
         }
 
         ///////////////////////////////
@@ -300,6 +323,8 @@ public class NetBuilder  {
                 System.out.println("Error!!!");
             }
         }
+
+
         //////////////////////////////
 
         return MatrixUtils.createRealMatrix(incomeOutputDeltaRates);

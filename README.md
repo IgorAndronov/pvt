@@ -22,12 +22,23 @@ Assumptions:
 2. As many different users generates individual sequences of game combinations it has no sence to analize overall user statistics as it will lead to uniform distribution. Instead of this individual user statistics should be taken into account to consider personal nature of the user stratagy
 3. As user stratajy can be changed in time the server algoritm should adjust its behavior based on recent last user actions.
 For that purposess period for analises shouldn't be taken very big as in this case server wouldn't react dinamicaly enough and can produce similar results that user can mention and make a profit from this.
+
 Algoritm description:
 "game step(gs)" -user combination (stone or scissors or paper)
+"gs" sequense example ("s" -stone; c -scissors, p- paper):
+"s", "p", "c",..."p","s", "p","s", "p"
+
+If statistics data is collected in "enough for prediction" amount(parametrised) then the following algoritm is applied:
 Server simply collects last user "game steps" statistics and analize frequeency of last combination(gs).
 First iteration:
-select last combination(gs) and search the frequency of the upcomming step(gs). If probability of some step is hire enough(more in compare with other steps) then this "gs" is considered as probable user next step(gs)
-icombination consist of the last action. Then this action is serched amoung of 
+select last combination(gs) ("p" in example) and search the frequency of the upcomming step(gs). Upcomming gs is the gs that goes immidiatly after current one(in example "c" 1time and "s" 2 times). If probability of some "gs"("s" in the example) is hire enough(parametrised) then this "gs" is considered as probable user next step(gs).
+Second iteration: 
+if probability level of step one is not high enough then combination of last two "gs"("s""p") is analised and algoritm is repeated
+Iteration N:
+same for n last "gs"
+If probabilty level is not fullfiled for n-iterations then just more frequent "gs" is found and considered as most probable next user step(gs) 
+If statistics amount is not enough for the prediction(parametrised) then random combination is used.
+
 
 
 How to Run:

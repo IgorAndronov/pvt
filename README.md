@@ -1,2 +1,2 @@
 
-![Alt text](src/main/resources/readme.png?raw=true "Title")
+![Alt solution](src/main/resources/solution.png?raw=true "Architecture")

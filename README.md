@@ -1,2 +1,2 @@
 
-![Alt text](src/path/to/readme.png?raw=true "Title")
+![Alt text](src/main/resources/readme.png?raw=true "Title")

@@ -40,6 +40,5 @@ If probabilty level is not fullfiled for n-iterations then just more frequent "g
 If statistics amount is not enough for the prediction(parametrised) then random combination is used.
 
 
-
 How to Run:
 
